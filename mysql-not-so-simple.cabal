@@ -22,6 +22,7 @@ library
                          MySql.Error
                          MySql.Field
                          MySql.Row
+                         MySql.Query
 
   build-depends:       base-noprelude >= 4.11 && < 4.12
                      , io-streams
