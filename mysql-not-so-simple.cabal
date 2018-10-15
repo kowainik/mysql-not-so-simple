@@ -19,11 +19,13 @@ library
 
   other-modules:       Prelude
   exposed-modules:     MySql
+                         MySql.Error
                          MySql.Field
                          MySql.Row
 
   build-depends:       base-noprelude >= 4.11 && < 4.12
                      , io-streams
+                     , mtl ^>= 2.2
                      , mysql-haskell ^>= 0.8.3
                      , relude ^>= 0.3.0
 

@@ -1,8 +1,13 @@
+{-# LANGUAGE FlexibleContexts #-}
+
 module MySql.Row
        ( Row (..)
        ) where
 
+import Control.Monad.Except (MonadError (throwError))
+
 import MySql.Field (Field (..))
+import MySql.Error (MySqlError (..))
 
 import qualified Database.MySQL.Base as SQL
 import qualified System.IO.Streams as Stream
@@ -107,7 +112,7 @@ end or fail early if the parsing fails.
 -}
 fromRows
     :: forall a m .
-       (MonadIO m, Row a {- , WithError m -})
+       (MonadIO m, Row a, MonadError MySqlError m)
     => ([SQL.ColumnDef], Stream.InputStream [SQL.MySQLValue])
     -> m [a]
 fromRows (_columnDefs, iStream) = go []
@@ -125,5 +130,4 @@ fromRows (_columnDefs, iStream) = go []
                 -- You need to 'consume' the while inputstream if we want to discard results midway
                 -- to prevent errors
                 liftIO $ SQL.skipToEof iStream
-                error "Unknown"
-                -- throwError $ mysqlParseError (show values)
+                throwError $ MySqlParseError (show values)
