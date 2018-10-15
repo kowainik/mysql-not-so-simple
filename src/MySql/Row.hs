@@ -1,16 +1,10 @@
-{-# LANGUAGE FlexibleContexts #-}
-
 module MySql.Row
        ( Row (..)
        ) where
 
-import Control.Monad.Except (MonadError (throwError))
-
 import MySql.Field (Field (..))
-import MySql.Error (MySqlError (..))
 
 import qualified Database.MySQL.Base as SQL
-import qualified System.IO.Streams as Stream
 
 {- | Something that can be represented as a row. We define this manually since
 there is no @FromRow@ or @ToRow@ in @mysql-haskell@.
@@ -102,32 +96,3 @@ instance (Field a, Field b, Field c, Field d, Field e, Field f, Field g, Field h
     toRow (a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p) = [toField a, toField b, toField c, toField d, toField e, toField f, toField g, toField h, toField i, toField j, toField k, toField l, toField m, toField n, toField o, toField p]
     fromRow [a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p] = (,,,,,,,,,,,,,,,) <$> fromField a <*> fromField b <*> fromField c <*> fromField d <*> fromField e <*> fromField f <*> fromField g <*> fromField h <*> fromField i <*> fromField j <*> fromField k <*> fromField l <*> fromField m <*> fromField n <*> fromField o <*> fromField p
     fromRow _ = Nothing
-
-----------------------------------------------------------------------------
--- Low-level internal details
-----------------------------------------------------------------------------
-
-{- | Helper function to help parse the rows and read the `InputStream` till its
-end or fail early if the parsing fails.
--}
-fromRows
-    :: forall a m .
-       (MonadIO m, Row a, MonadError MySqlError m)
-    => ([SQL.ColumnDef], Stream.InputStream [SQL.MySQLValue])
-    -> m [a]
-fromRows (_columnDefs, iStream) = go []
-  where
-    go :: [a] -> m [a]
-    go acc = liftIO (Stream.read iStream) >>= \case
-        -- There are no more rows to be read from the server
-        Nothing -> pure acc  -- TODO: call reverse here? Otherwise returns in the reverse order
-        -- There are still rows to be read from the server
-        Just values -> case fromRow values of
-            -- Parsing of current row succeeded. Recurse
-            Just parsedValue -> go (parsedValue : acc)
-            -- Parsing of the current row failed, error out
-            Nothing -> do
-                -- You need to 'consume' the while inputstream if we want to discard results midway
-                -- to prevent errors
-                liftIO $ SQL.skipToEof iStream
-                throwError $ MySqlParseError (show values)
