@@ -18,6 +18,8 @@ module MySql.Field
 import Data.Time.Clock (UTCTime)
 import Data.Time.LocalTime (localTimeToUTC, utc, utcToLocalTime)
 
+import MySql.Error (MySqlError (..))
+
 import qualified Database.MySQL.Base as SQL
 
 
@@ -27,7 +29,7 @@ class ToField a where
 
 -- | To convert a single value in a row returned by a SQL query into a data type.
 class FromField a where
-  fromField :: SQL.MySQLValue -> Maybe a
+  fromField :: SQL.MySQLValue -> Either MySqlError a
 
 -- | Type alias constraint for 'ToField' and 'FromField' type classes.
 type Field a = (ToField a, FromField a)
@@ -39,22 +41,22 @@ instance ToField Text where
     toField = SQL.One . SQL.MySQLText
 
 instance FromField Text where
-    fromField (SQL.MySQLText x) = Just x
-    fromField _                 = Nothing
+    fromField (SQL.MySQLText x) = Right x
+    fromField x                 = Left $ MySqlWrongField x
 
 instance ToField Int32 where
     toField = SQL.One . SQL.MySQLInt32
 
 instance FromField Int32 where
-    fromField (SQL.MySQLInt32 x) = Just x
-    fromField _                  = Nothing
+    fromField (SQL.MySQLInt32 x) = Right x
+    fromField x                  = Left $ MySqlWrongField x
 
 instance ToField Double where
     toField = SQL.One . SQL.MySQLDouble
 
 instance FromField Double where
-    fromField (SQL.MySQLDouble x) = Just x
-    fromField _                   = Nothing
+    fromField (SQL.MySQLDouble x) = Right x
+    fromField x                   = Left $ MySqlWrongField x
 
 
 instance (ToField a) => ToField (Maybe a) where
@@ -69,8 +71,8 @@ instance ToField UTCTime where
     toField = SQL.One . SQL.MySQLTimeStamp . utcToLocalTime utc
 
 instance FromField UTCTime where
-    fromField (SQL.MySQLTimeStamp localTime) = Just $ localTimeToUTC utc localTime
-    fromField _                              = Nothing
+    fromField (SQL.MySQLTimeStamp localTime) = Right $ localTimeToUTC utc localTime
+    fromField x                              = Left $ MySqlWrongField x
 
 {- | This data type is supposed to be used to substitue multiple arguments. Like this:
 
