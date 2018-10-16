@@ -2,7 +2,7 @@ module MySql.Row
        ( Row (..)
        ) where
 
-import MySql.Field (Field, ToField (..), FromField (..))
+import MySql.Field (Field, FromField (..), ToField (..))
 
 import qualified Database.MySQL.Base as SQL
 
@@ -22,77 +22,76 @@ instance (Field a) => Row (Only a) where
     fromRow [a] = Only <$> fromField a
     fromRow _   = Nothing
 
-instance (Field a, Field b) => Row (a,b) where
-    toRow (a,b) = [toField a, toField b]
-    fromRow [a,b] = (,) <$> fromField a <*> fromField b
-    fromRow _     = Nothing
+----------------------------------------------------------------------------
+-- Generated instances
+----------------------------------------------------------------------------
 
-instance (Field a, Field b, Field c) => Row (a,b,c) where
-    toRow (a,b,c) = [toField a, toField b, toField c]
-    fromRow [a,b,c] = (,,) <$> fromField a <*> fromField b <*> fromField c
+instance (Field a1, Field a2) => Row (a1,a2) where
+    toRow (a1,a2) = [toField a1, toField a2]
+    fromRow [a1,a2] = (,) <$> fromField a1 <*> fromField a2
     fromRow _       = Nothing
 
-instance (Field a, Field b, Field c, Field d) => Row (a,b,c,d) where
-    toRow (a,b,c,d) = [toField a, toField b, toField c, toField d]
-    fromRow [a,b,c,d] = (,,,) <$> fromField a <*> fromField b <*> fromField c <*> fromField d
-    fromRow _         = Nothing
+instance (Field a1, Field a2, Field a3) => Row (a1,a2,a3) where
+    toRow (a1,a2,a3) = [toField a1, toField a2, toField a3]
+    fromRow [a1,a2,a3] = (,,) <$> fromField a1 <*> fromField a2 <*> fromField a3
+    fromRow _          = Nothing
 
-instance (Field a, Field b, Field c, Field d, Field e) => Row (a,b,c,d,e) where
-    toRow (a,b,c,d,e) = [toField a, toField b, toField c, toField d, toField e]
-    fromRow [a,b,c,d,e] = (,,,,) <$> fromField a <*> fromField b <*> fromField c <*> fromField d <*> fromField e
-    fromRow _           = Nothing
-
-instance (Field a, Field b, Field c, Field d, Field e, Field f) => Row (a,b,c,d,e,f) where
-    toRow (a,b,c,d,e,f) = [toField a, toField b, toField c, toField d, toField e, toField f]
-    fromRow [a,b,c,d,e,f] = (,,,,,) <$> fromField a <*> fromField b <*> fromField c <*> fromField d <*> fromField e <*> fromField f
+instance (Field a1, Field a2, Field a3, Field a4) => Row (a1,a2,a3,a4) where
+    toRow (a1,a2,a3,a4) = [toField a1, toField a2, toField a3, toField a4]
+    fromRow [a1,a2,a3,a4] = (,,,) <$> fromField a1 <*> fromField a2 <*> fromField a3 <*> fromField a4
     fromRow _ = Nothing
 
-instance (Field a, Field b, Field c, Field d, Field e, Field f, Field g) => Row (a,b,c,d,e,f,g) where
-    toRow (a,b,c,d,e,f,g) = [toField a, toField b, toField c, toField d, toField e, toField f, toField g]
-    fromRow [a,b,c,d,e,f,g] = (,,,,,,) <$> fromField a <*> fromField b <*> fromField c <*> fromField d <*> fromField e <*> fromField f <*> fromField g
+instance (Field a1, Field a2, Field a3, Field a4, Field a5) => Row (a1,a2,a3,a4,a5) where
+    toRow (a1,a2,a3,a4,a5) = [toField a1, toField a2, toField a3, toField a4, toField a5]
+    fromRow [a1,a2,a3,a4,a5] = (,,,,) <$> fromField a1 <*> fromField a2 <*> fromField a3 <*> fromField a4 <*> fromField a5
     fromRow _ = Nothing
 
-instance (Field a, Field b, Field c, Field d, Field e, Field f, Field g, Field h) => Row (a,b,c,d,e,f,g,h) where
-    toRow (a,b,c,d,e,f,g,h) = [toField a, toField b, toField c, toField d, toField e, toField f, toField g, toField h]
-    fromRow [a,b,c,d,e,f,g,h] = (,,,,,,,) <$> fromField a <*> fromField b <*> fromField c <*> fromField d <*> fromField e <*> fromField f <*> fromField g <*> fromField h
+instance (Field a1, Field a2, Field a3, Field a4, Field a5, Field a6) => Row (a1,a2,a3,a4,a5,a6) where
+    toRow (a1,a2,a3,a4,a5,a6) = [toField a1, toField a2, toField a3, toField a4, toField a5, toField a6]
+    fromRow [a1,a2,a3,a4,a5,a6] = (,,,,,) <$> fromField a1 <*> fromField a2 <*> fromField a3 <*> fromField a4 <*> fromField a5 <*> fromField a6
     fromRow _ = Nothing
 
-instance (Field a, Field b, Field c, Field d, Field e, Field f, Field g, Field h, Field i) => Row (a,b,c,d,e,f,g,h,i) where
-    toRow (a,b,c,d,e,f,g,h,i) = [toField a, toField b, toField c, toField d, toField e, toField f, toField g, toField h, toField i]
-    fromRow [a,b,c,d,e,f,g,h,i] = (,,,,,,,,) <$> fromField a <*> fromField b <*> fromField c <*> fromField d <*> fromField e <*> fromField f <*> fromField g <*> fromField h <*> fromField i
+instance (Field a1, Field a2, Field a3, Field a4, Field a5, Field a6, Field a7) => Row (a1,a2,a3,a4,a5,a6,a7) where
+    toRow (a1,a2,a3,a4,a5,a6,a7) = [toField a1, toField a2, toField a3, toField a4, toField a5, toField a6, toField a7]
+    fromRow [a1,a2,a3,a4,a5,a6,a7] = (,,,,,,) <$> fromField a1 <*> fromField a2 <*> fromField a3 <*> fromField a4 <*> fromField a5 <*> fromField a6 <*> fromField a7
     fromRow _ = Nothing
 
-instance (Field a, Field b, Field c, Field d, Field e, Field f, Field g, Field h, Field i, Field j) => Row (a,b,c,d,e,f,g,h,i,j) where
-    toRow (a,b,c,d,e,f,g,h,i,j) = [toField a, toField b, toField c, toField d, toField e, toField f, toField g, toField h, toField i, toField j]
-    fromRow [a,b,c,d,e,f,g,h,i,j] = (,,,,,,,,,) <$> fromField a <*> fromField b <*> fromField c <*> fromField d <*> fromField e <*> fromField f <*> fromField g <*> fromField h <*> fromField i <*> fromField j
+instance (Field a1, Field a2, Field a3, Field a4, Field a5, Field a6, Field a7, Field a8) => Row (a1,a2,a3,a4,a5,a6,a7,a8) where
+    toRow (a1,a2,a3,a4,a5,a6,a7,a8) = [toField a1, toField a2, toField a3, toField a4, toField a5, toField a6, toField a7, toField a8]
+    fromRow [a1,a2,a3,a4,a5,a6,a7,a8] = (,,,,,,,) <$> fromField a1 <*> fromField a2 <*> fromField a3 <*> fromField a4 <*> fromField a5 <*> fromField a6 <*> fromField a7 <*> fromField a8
     fromRow _ = Nothing
 
-instance (Field a, Field b, Field c, Field d, Field e, Field f, Field g, Field h, Field i, Field j, Field k) => Row (a,b,c,d,e,f,g,h,i,j,k) where
-    toRow (a,b,c,d,e,f,g,h,i,j,k) = [toField a, toField b, toField c, toField d, toField e, toField f, toField g, toField h, toField i, toField j, toField k]
-    fromRow [a,b,c,d,e,f,g,h,i,j,k] = (,,,,,,,,,,) <$> fromField a <*> fromField b <*> fromField c <*> fromField d <*> fromField e <*> fromField f <*> fromField g <*> fromField h <*> fromField i <*> fromField j <*> fromField k
+instance (Field a1, Field a2, Field a3, Field a4, Field a5, Field a6, Field a7, Field a8, Field a9) => Row (a1,a2,a3,a4,a5,a6,a7,a8,a9) where
+    toRow (a1,a2,a3,a4,a5,a6,a7,a8,a9) = [toField a1, toField a2, toField a3, toField a4, toField a5, toField a6, toField a7, toField a8, toField a9]
+    fromRow [a1,a2,a3,a4,a5,a6,a7,a8,a9] = (,,,,,,,,) <$> fromField a1 <*> fromField a2 <*> fromField a3 <*> fromField a4 <*> fromField a5 <*> fromField a6 <*> fromField a7 <*> fromField a8 <*> fromField a9
     fromRow _ = Nothing
 
-instance (Field a, Field b, Field c, Field d, Field e, Field f, Field g, Field h, Field i, Field j, Field k, Field l) => Row (a,b,c,d,e,f,g,h,i,j,k,l) where
-    toRow (a,b,c,d,e,f,g,h,i,j,k,l) = [toField a, toField b, toField c, toField d, toField e, toField f, toField g, toField h, toField i, toField j, toField k, toField l]
-    fromRow [a,b,c,d,e,f,g,h,i,j,k,l] = (,,,,,,,,,,,) <$> fromField a <*> fromField b <*> fromField c <*> fromField d <*> fromField e <*> fromField f <*> fromField g <*> fromField h <*> fromField i <*> fromField j <*> fromField k <*> fromField l
+instance (Field a1, Field a2, Field a3, Field a4, Field a5, Field a6, Field a7, Field a8, Field a9, Field a10) => Row (a1,a2,a3,a4,a5,a6,a7,a8,a9,a10) where
+    toRow (a1,a2,a3,a4,a5,a6,a7,a8,a9,a10) = [toField a1, toField a2, toField a3, toField a4, toField a5, toField a6, toField a7, toField a8, toField a9, toField a10]
+    fromRow [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10] = (,,,,,,,,,) <$> fromField a1 <*> fromField a2 <*> fromField a3 <*> fromField a4 <*> fromField a5 <*> fromField a6 <*> fromField a7 <*> fromField a8 <*> fromField a9 <*> fromField a10
     fromRow _ = Nothing
 
-instance (Field a, Field b, Field c, Field d, Field e, Field f, Field g, Field h, Field i, Field j, Field k, Field l, Field m) => Row (a,b,c,d,e,f,g,h,i,j,k,l,m) where
-    toRow (a,b,c,d,e,f,g,h,i,j,k,l,m) = [toField a, toField b, toField c, toField d, toField e, toField f, toField g, toField h, toField i, toField j, toField k, toField l, toField m]
-    fromRow [a,b,c,d,e,f,g,h,i,j,k,l,m] = (,,,,,,,,,,,,) <$> fromField a <*> fromField b <*> fromField c <*> fromField d <*> fromField e <*> fromField f <*> fromField g <*> fromField h <*> fromField i <*> fromField j <*> fromField k <*> fromField l <*> fromField m
+instance (Field a1, Field a2, Field a3, Field a4, Field a5, Field a6, Field a7, Field a8, Field a9, Field a10, Field a11) => Row (a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11) where
+    toRow (a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11) = [toField a1, toField a2, toField a3, toField a4, toField a5, toField a6, toField a7, toField a8, toField a9, toField a10, toField a11]
+    fromRow [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11] = (,,,,,,,,,,) <$> fromField a1 <*> fromField a2 <*> fromField a3 <*> fromField a4 <*> fromField a5 <*> fromField a6 <*> fromField a7 <*> fromField a8 <*> fromField a9 <*> fromField a10 <*> fromField a11
     fromRow _ = Nothing
 
-instance (Field a, Field b, Field c, Field d, Field e, Field f, Field g, Field h, Field i, Field j, Field k, Field l, Field m, Field n) => Row (a,b,c,d,e,f,g,h,i,j,k,l,m,n) where
-    toRow (a,b,c,d,e,f,g,h,i,j,k,l,m,n) = [toField a, toField b, toField c, toField d, toField e, toField f, toField g, toField h, toField i, toField j, toField k, toField l, toField m, toField n]
-    fromRow [a,b,c,d,e,f,g,h,i,j,k,l,m,n] = (,,,,,,,,,,,,,) <$> fromField a <*> fromField b <*> fromField c <*> fromField d <*> fromField e <*> fromField f <*> fromField g <*> fromField h <*> fromField i <*> fromField j <*> fromField k <*> fromField l <*> fromField m <*> fromField n
+instance (Field a1, Field a2, Field a3, Field a4, Field a5, Field a6, Field a7, Field a8, Field a9, Field a10, Field a11, Field a12) => Row (a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12) where
+    toRow (a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12) = [toField a1, toField a2, toField a3, toField a4, toField a5, toField a6, toField a7, toField a8, toField a9, toField a10, toField a11, toField a12]
+    fromRow [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12] = (,,,,,,,,,,,) <$> fromField a1 <*> fromField a2 <*> fromField a3 <*> fromField a4 <*> fromField a5 <*> fromField a6 <*> fromField a7 <*> fromField a8 <*> fromField a9 <*> fromField a10 <*> fromField a11 <*> fromField a12
     fromRow _ = Nothing
 
-instance (Field a, Field b, Field c, Field d, Field e, Field f, Field g, Field h, Field i, Field j, Field k, Field l, Field m, Field n, Field o) => Row (a,b,c,d,e,f,g,h,i,j,k,l,m,n,o) where
-    toRow (a,b,c,d,e,f,g,h,i,j,k,l,m,n,o) = [toField a, toField b, toField c, toField d, toField e, toField f, toField g, toField h, toField i, toField j, toField k, toField l, toField m, toField n, toField o]
-    fromRow [a,b,c,d,e,f,g,h,i,j,k,l,m,n,o] = (,,,,,,,,,,,,,,) <$> fromField a <*> fromField b <*> fromField c <*> fromField d <*> fromField e <*> fromField f <*> fromField g <*> fromField h <*> fromField i <*> fromField j <*> fromField k <*> fromField l <*> fromField m <*> fromField n <*> fromField o
+instance (Field a1, Field a2, Field a3, Field a4, Field a5, Field a6, Field a7, Field a8, Field a9, Field a10, Field a11, Field a12, Field a13) => Row (a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13) where
+    toRow (a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13) = [toField a1, toField a2, toField a3, toField a4, toField a5, toField a6, toField a7, toField a8, toField a9, toField a10, toField a11, toField a12, toField a13]
+    fromRow [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13] = (,,,,,,,,,,,,) <$> fromField a1 <*> fromField a2 <*> fromField a3 <*> fromField a4 <*> fromField a5 <*> fromField a6 <*> fromField a7 <*> fromField a8 <*> fromField a9 <*> fromField a10 <*> fromField a11 <*> fromField a12 <*> fromField a13
     fromRow _ = Nothing
 
-instance (Field a, Field b, Field c, Field d, Field e, Field f, Field g, Field h, Field i, Field j, Field k, Field l, Field m, Field n, Field o, Field p) => Row (a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p) where
-    toRow (a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p) = [toField a, toField b, toField c, toField d, toField e, toField f, toField g, toField h, toField i, toField j, toField k, toField l, toField m, toField n, toField o, toField p]
-    fromRow [a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p] = (,,,,,,,,,,,,,,,) <$> fromField a <*> fromField b <*> fromField c <*> fromField d <*> fromField e <*> fromField f <*> fromField g <*> fromField h <*> fromField i <*> fromField j <*> fromField k <*> fromField l <*> fromField m <*> fromField n <*> fromField o <*> fromField p
+instance (Field a1, Field a2, Field a3, Field a4, Field a5, Field a6, Field a7, Field a8, Field a9, Field a10, Field a11, Field a12, Field a13, Field a14) => Row (a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14) where
+    toRow (a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14) = [toField a1, toField a2, toField a3, toField a4, toField a5, toField a6, toField a7, toField a8, toField a9, toField a10, toField a11, toField a12, toField a13, toField a14]
+    fromRow [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14] = (,,,,,,,,,,,,,) <$> fromField a1 <*> fromField a2 <*> fromField a3 <*> fromField a4 <*> fromField a5 <*> fromField a6 <*> fromField a7 <*> fromField a8 <*> fromField a9 <*> fromField a10 <*> fromField a11 <*> fromField a12 <*> fromField a13 <*> fromField a14
+    fromRow _ = Nothing
+
+instance (Field a1, Field a2, Field a3, Field a4, Field a5, Field a6, Field a7, Field a8, Field a9, Field a10, Field a11, Field a12, Field a13, Field a14, Field a15) => Row (a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15) where
+    toRow (a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15) = [toField a1, toField a2, toField a3, toField a4, toField a5, toField a6, toField a7, toField a8, toField a9, toField a10, toField a11, toField a12, toField a13, toField a14, toField a15]
+    fromRow [a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15] = (,,,,,,,,,,,,,,) <$> fromField a1 <*> fromField a2 <*> fromField a3 <*> fromField a4 <*> fromField a5 <*> fromField a6 <*> fromField a7 <*> fromField a8 <*> fromField a9 <*> fromField a10 <*> fromField a11 <*> fromField a12 <*> fromField a13 <*> fromField a14 <*> fromField a15
     fromRow _ = Nothing
