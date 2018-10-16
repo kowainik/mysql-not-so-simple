@@ -16,17 +16,17 @@ import Control.Monad.Except (MonadError (throwError))
 import Database.MySQL.Base (MySQLConn, OK, Query)
 
 import MySql.Error (MySqlError (..))
-import MySql.Row (Row (..))
+import MySql.Row (FromRow (..), ToRow (..))
 
 import qualified Database.MySQL.Base as SQL
 import qualified System.IO.Streams as Stream
 
 -- | Execute given query and returning meta information about the result.
-execute :: (MonadIO m, Row row) => MySQLConn -> Query -> row -> m OK
+execute :: (MonadIO m, ToRow row) => MySQLConn -> Query -> row -> m OK
 execute conn q = liftIO . SQL.execute conn q . toRow
 
 -- | Like 'execute' but ignores the result.
-execute_ :: (MonadIO m, Row row) => MySQLConn -> Query -> row -> m ()
+execute_ :: (MonadIO m, ToRow row) => MySQLConn -> Query -> row -> m ()
 execute_ conn q = void . execute conn q
 
 -- | Execute a MySQL query which don't return a result-set.
@@ -38,21 +38,21 @@ executeRaw_ :: MonadIO m => MySQLConn -> Query -> m ()
 executeRaw_ conn = void . executeRaw conn
 
 -- | Execute a multi-row query which don't return result-set.
-executeMany :: (MonadIO m, Row row) => MySQLConn -> Query -> [row] -> m [OK]
+executeMany :: (MonadIO m, ToRow row) => MySQLConn -> Query -> [row] -> m [OK]
 executeMany conn q = liftIO . SQL.executeMany conn q . map toRow
 
 -- | Like 'executeMany' but ignores the result.
-executeMany_ :: (MonadIO m, Row row) => MySQLConn -> Query -> [row] -> m ()
+executeMany_ :: (MonadIO m, ToRow row) => MySQLConn -> Query -> [row] -> m ()
 executeMany_ conn q = void . executeMany conn q
 
 -- | Execute a MySQL query which return a result-set with parameters.
 query
-    :: (MonadIO m, MonadError MySqlError m, Row args, Row res)
+    :: (MonadIO m, MonadError MySqlError m, ToRow args, FromRow res)
     => MySQLConn -> Query -> args -> m [res]
 query conn q args = liftIO (SQL.query conn q $ toRow args) >>= fromRows
 
 -- | Execute a MySQL query which return a result-set.
-queryRaw :: (MonadIO m, MonadError MySqlError m, Row res) => MySQLConn -> Query -> m [res]
+queryRaw :: (MonadIO m, MonadError MySqlError m, FromRow res) => MySQLConn -> Query -> m [res]
 queryRaw conn q = liftIO (SQL.query_ conn q) >>= fromRows
 
 ----------------------------------------------------------------------------
@@ -64,7 +64,7 @@ end or fail early if the parsing fails.
 -}
 fromRows
     :: forall a m .
-       (MonadIO m, Row a, MonadError MySqlError m)
+       (MonadIO m, FromRow a, MonadError MySqlError m)
     => ([SQL.ColumnDef], Stream.InputStream [SQL.MySQLValue])
     -> m [a]
 fromRows (_columnDefs, iStream) = go []
