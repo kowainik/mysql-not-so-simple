@@ -23,21 +23,20 @@ genSingleInstance n = unlines
     , "    toRow (" <> vars <> ") = [" <> toFieldVars <> "]"
     , ""
     , "instance (" <> context "From" <> ") => FromRow (" <> vars <> ") where"
-    , "    fromRow [" <> vars <> "] = (" <> commas <> ") <$> " <> fromFieldVars
-    , "    fromRow _ = Nothing"
+    , "    fromRow = (" <> commas <> ") <$> " <> fieldVars
     ]
   where
     -- generates list with variable names like: ["a1", "a2", "a3", ...]
     names :: [Text]
     names = map (\i -> "a" <> show i) [1 .. n]
 
-    vars, commas, toFieldVars, fromFieldVars :: Text
+    vars, commas, toFieldVars, fieldVars :: Text
     context :: Text -> Text
     vars = T.intercalate "," names
     commas = toText $ replicate (n - 1) ','
-    context x     = prefixIntercalate (x <> "Field ")     ", "    names
-    toFieldVars   = prefixIntercalate "toField "   ", "    names
-    fromFieldVars = prefixIntercalate "fromField " " <*> " names
+    context x   = prefixIntercalate (x <> "Field ") ", " names
+    toFieldVars = prefixIntercalate "toField " ", " names
+    fieldVars   = T.intercalate " <*> " $ replicate n "field"
 
 prefixIntercalate :: Text -> Text -> [Text] -> Text
 prefixIntercalate pref between = T.intercalate between . map (pref <>)
