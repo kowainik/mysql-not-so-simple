@@ -3,8 +3,8 @@
 -- | The 'sql' quasiquoter, for writing large @SQL@ statements.
 
 module MySql.QQ
-     ( sql
-     ) where
+       ( sql
+       ) where
 
 import Data.String (fromString)
 import Database.MySQL.Base (Query)
@@ -13,6 +13,7 @@ import Language.Haskell.TH.Quote (QuasiQuoter (..))
 
 {- | A quasiquoter for writing big @SQL@ queries.
 One should consider turning on the @-XQuasiQuotes@ pragma in that module:
+
 @
 {-# LANGUAGE QuasiQuoter #-}
 
