@@ -1,3 +1,8 @@
+{-# LANGUAGE DefaultSignatures #-}
+{-# LANGUAGE FlexibleContexts  #-}
+{-# LANGUAGE PolyKinds         #-}
+{-# LANGUAGE TypeOperators     #-}
+
 {- | The Row is something that can be represented as a row. We define this
 manually since there is no @FromRow@ or @ToRow@ in @mysql-haskell@.
 -}
@@ -9,15 +14,41 @@ module MySql.Row
        , Only (..)
        ) where
 
+import GHC.Generics ((:*:) (..), Generic (Rep), K1 (..), M1 (..))
+
 import MySql.Field (FromField (..), ToField (..))
 import MySql.Matcher (Matcher, field)
 
 import qualified Database.MySQL.Base as SQL
+import qualified GHC.Generics as Generic
 
+----------------------------------------------------------------------------
+-- ToRow
+----------------------------------------------------------------------------
 
 -- | The typeclass for rendering a collection of parameters to a SQL query.
 class ToRow a where
     toRow   :: a -> [SQL.Param]
+
+    default toRow :: (Generic a, GenericToRow (Rep a)) => a -> [SQL.Param]
+    toRow = genericToRow . Generic.from
+
+-- Type class for default implementation of ToRow using generics
+class GenericToRow (f :: k -> Type) where
+    genericToRow :: f p -> [SQL.Param]
+
+instance GenericToRow f => GenericToRow (M1 i m f) where
+    genericToRow (M1 f) = genericToRow f
+
+instance (GenericToRow f, GenericToRow g) => GenericToRow (f :*: g) where
+    genericToRow (f :*: g) = genericToRow f ++ genericToRow g
+
+instance ToField a => GenericToRow (K1 i a) where
+    genericToRow (K1 a) = [toField a]
+
+----------------------------------------------------------------------------
+-- FromRow
+----------------------------------------------------------------------------
 
 {- | The typeclass for converting a row of results returned by a SQL query into
 a more useful Haskell representation. Use 'MySql.Matcher.field' function to
@@ -25,6 +56,26 @@ implement instances of this typeclass.
 -}
 class FromRow a where
     fromRow :: Matcher a
+
+    default fromRow :: (Generic a, GenericFromRow (Rep a)) => Matcher a
+    fromRow = Generic.to <$> genericFromRow
+
+-- Type class for default implementation of ToRow using generics
+class GenericFromRow (f :: k -> Type) where
+    genericFromRow :: Matcher (f p)
+
+instance GenericFromRow f => GenericFromRow (M1 i m f) where
+    genericFromRow = M1 <$> genericFromRow
+
+instance (GenericFromRow f, GenericFromRow g) => GenericFromRow (f :*: g) where
+    genericFromRow = liftA2 (:*:) genericFromRow genericFromRow
+
+instance FromField a => GenericFromRow (K1 i a) where
+    genericFromRow = K1 <$> field
+
+----------------------------------------------------------------------------
+-- Manual instances
+----------------------------------------------------------------------------
 
 {- | A single-value "collection". This is useful if you need to supply a single
 parameter to a SQL query, or extract a single column from a SQL result.
