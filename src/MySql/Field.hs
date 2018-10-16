@@ -12,12 +12,15 @@ module MySql.Field
        , Field
        ) where
 
+import Data.Time.Clock (UTCTime)
+import Data.Time.LocalTime (utcToLocalTime, utc, localTimeToUTC)
+
 import qualified Database.MySQL.Base as SQL
 
 
 -- | To render the data type to a SQL query.
 class ToField a where
-  toField   :: a -> SQL.Param
+  toField :: a -> SQL.Param
 
 -- | To convert a single value in a row returned by a SQL query into a data type.
 class FromField a where
@@ -60,3 +63,10 @@ instance ToField a => ToField [a] where
 -- TODO: The `fromField` definition here makes no sense?
 instance FromField a => FromField [a] where
     fromField x = pure <$> fromField x
+
+instance ToField UTCTime where
+    toField = SQL.One . SQL.MySQLTimeStamp . utcToLocalTime utc
+
+instance FromField UTCTime where
+    fromField (SQL.MySQLTimeStamp localTime) = Just $ localTimeToUTC utc localTime
+    fromField _ = Nothing
