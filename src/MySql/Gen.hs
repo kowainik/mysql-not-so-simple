@@ -19,8 +19,10 @@ genInstances n = unlines $ map genSingleInstance [2 .. n]
 -- | Generates single 'Row' instance for tuple of given size.
 genSingleInstance :: Int -> Text
 genSingleInstance n = unlines
-    [ "instance (" <> context <> ") => Row (" <> vars <> ") where"
+    [ "instance (" <> context "To" <> ") => ToRow (" <> vars <> ") where"
     , "    toRow (" <> vars <> ") = [" <> toFieldVars <> "]"
+    , ""
+    , "instance (" <> context "From" <> ") => FromRow (" <> vars <> ") where"
     , "    fromRow [" <> vars <> "] = (" <> commas <> ") <$> " <> fromFieldVars
     , "    fromRow _ = Nothing"
     ]
@@ -29,10 +31,11 @@ genSingleInstance n = unlines
     names :: [Text]
     names = map (\i -> "a" <> show i) [1 .. n]
 
-    vars, commas, context, toFieldVars, fromFieldVars :: Text
+    vars, commas, toFieldVars, fromFieldVars :: Text
+    context :: Text -> Text
     vars = T.intercalate "," names
     commas = toText $ replicate (n - 1) ','
-    context       = prefixIntercalate "Field "     ", "    names
+    context x     = prefixIntercalate (x <> "Field ")     ", "    names
     toFieldVars   = prefixIntercalate "toField "   ", "    names
     fromFieldVars = prefixIntercalate "fromField " " <*> " names
 
