@@ -2,7 +2,7 @@ module MySql.Row
        ( Row (..)
        ) where
 
-import MySql.Field (Field (..))
+import MySql.Field (Field, ToField (..), FromField (..))
 
 import qualified Database.MySQL.Base as SQL
 
