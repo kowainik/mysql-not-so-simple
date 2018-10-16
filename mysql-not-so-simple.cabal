@@ -29,6 +29,7 @@ library
                      , mtl ^>= 2.2
                      , mysql-haskell ^>= 0.8.3
                      , relude ^>= 0.3.0
+                     , time ^>= 1.8
 
   ghc-options:         -Wall
                        -Wincomplete-uni-patterns
