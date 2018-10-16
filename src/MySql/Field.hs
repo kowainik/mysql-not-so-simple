@@ -50,7 +50,6 @@ instance FromField Double where
     fromField (SQL.MySQLDouble x) = Just x
     fromField _                   = Nothing
 
--- TODO: The `fromC` definition here makes no sense?
 instance ToField a => ToField [a] where
     toField x = SQL.Many $ foldl' folder [] x
       where
@@ -58,5 +57,6 @@ instance ToField a => ToField [a] where
             SQL.One a' -> a':acc
             _          -> acc
 
+-- TODO: The `fromField` definition here makes no sense?
 instance FromField a => FromField [a] where
     fromField x = pure <$> fromField x
