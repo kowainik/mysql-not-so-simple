@@ -42,21 +42,21 @@ instance ToField Text where
 
 instance FromField Text where
     fromField (SQL.MySQLText x) = Right x
-    fromField x                 = Left $ MySqlWrongField x
+    fromField x                 = Left $ MySqlWrongField x "Text"
 
 instance ToField Int32 where
     toField = SQL.One . SQL.MySQLInt32
 
 instance FromField Int32 where
     fromField (SQL.MySQLInt32 x) = Right x
-    fromField x                  = Left $ MySqlWrongField x
+    fromField x                  = Left $ MySqlWrongField x "Int32"
 
 instance ToField Double where
     toField = SQL.One . SQL.MySQLDouble
 
 instance FromField Double where
     fromField (SQL.MySQLDouble x) = Right x
-    fromField x                   = Left $ MySqlWrongField x
+    fromField x                   = Left $ MySqlWrongField x "Double"
 
 
 instance (ToField a) => ToField (Maybe a) where
@@ -72,7 +72,7 @@ instance ToField UTCTime where
 
 instance FromField UTCTime where
     fromField (SQL.MySQLTimeStamp localTime) = Right $ localTimeToUTC utc localTime
-    fromField x                              = Left $ MySqlWrongField x
+    fromField x                              = Left $ MySqlWrongField x "TimeStamp"
 
 {- | This data type is supposed to be used to substitue multiple arguments. Like this:
 
