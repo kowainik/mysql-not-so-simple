@@ -24,12 +24,14 @@ library
                          MySql.Gen
                          MySql.Row
                          MySql.Query
+                         MySql.QQ
 
   build-depends:       base-noprelude >= 4.11 && < 4.12
                      , io-streams
                      , mtl ^>= 2.2
                      , mysql-haskell ^>= 0.8.3
                      , relude ^>= 0.3.0
+                     , template-haskell ^>= 2.13
                      , text ^>= 1.2.3
                      , time ^>= 1.8
 
