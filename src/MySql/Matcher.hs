@@ -42,5 +42,5 @@ field :: FromField a => Matcher a
 field = get >>= \case
     [] -> throwError MySqlUnexpectedEndOfRow
     val:vals -> case fromField val of
-        Nothing -> throwError $ MySqlWrongField val
-        Just x  -> put vals >> pure x
+        Left e  -> throwError e
+        Right x -> put vals >> pure x
