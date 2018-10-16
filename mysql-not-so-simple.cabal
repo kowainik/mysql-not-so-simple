@@ -21,6 +21,7 @@ library
   exposed-modules:     MySql
                          MySql.Error
                          MySql.Field
+                         MySql.Gen
                          MySql.Row
                          MySql.Query
 
@@ -29,6 +30,7 @@ library
                      , mtl ^>= 2.2
                      , mysql-haskell ^>= 0.8.3
                      , relude ^>= 0.3.0
+                     , text ^>= 1.2.3
                      , time ^>= 1.8
 
   ghc-options:         -Wall
