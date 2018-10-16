@@ -1,4 +1,5 @@
-{-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE ConstraintKinds  #-}
+{-# LANGUAGE TypeApplications #-}
 
 {- | The field is something that can be represented as a column.
 
@@ -63,6 +64,14 @@ instance ToField a => ToField [a] where
 -- TODO: The `fromField` definition here makes no sense?
 instance FromField a => FromField [a] where
     fromField x = pure <$> fromField x
+
+instance (ToField a) => ToField (Maybe a) where
+    toField Nothing  = SQL.One SQL.MySQLNull
+    toField (Just a) = toField a
+
+instance (FromField a) => FromField (Maybe a) where
+    fromField SQL.MySQLNull = pure Nothing
+    fromField f             = Just <$> fromField @a f
 
 instance ToField UTCTime where
     toField = SQL.One . SQL.MySQLTimeStamp . utcToLocalTime utc
