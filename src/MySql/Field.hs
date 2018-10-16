@@ -11,10 +11,12 @@ module MySql.Field
        ( ToField (..)
        , FromField (..)
        , Field
+
+       , Lots (..)
        ) where
 
 import Data.Time.Clock (UTCTime)
-import Data.Time.LocalTime (utcToLocalTime, utc, localTimeToUTC)
+import Data.Time.LocalTime (localTimeToUTC, utc, utcToLocalTime)
 
 import qualified Database.MySQL.Base as SQL
 
@@ -54,16 +56,6 @@ instance FromField Double where
     fromField (SQL.MySQLDouble x) = Just x
     fromField _                   = Nothing
 
-instance ToField a => ToField [a] where
-    toField x = SQL.Many $ foldl' folder [] x
-      where
-        folder acc a = case toField a of
-            SQL.One a' -> a':acc
-            _          -> acc
-
--- TODO: The `fromField` definition here makes no sense?
-instance FromField a => FromField [a] where
-    fromField x = pure <$> fromField x
 
 instance (ToField a) => ToField (Maybe a) where
     toField Nothing  = SQL.One SQL.MySQLNull
@@ -78,4 +70,22 @@ instance ToField UTCTime where
 
 instance FromField UTCTime where
     fromField (SQL.MySQLTimeStamp localTime) = Just $ localTimeToUTC utc localTime
-    fromField _ = Nothing
+    fromField _                              = Nothing
+
+{- | This data type is supposed to be used to substitue multiple arguments. Like this:
+
+@
+[sql| SELECT * FROM test WHERE _id IN (?, "888") |] ('Lots' ["hello", "world"])
+@
+-}
+newtype Lots a = Lots
+    { unLots :: [a]
+    }
+
+instance ToField a => ToField (Lots a) where
+    toField = SQL.Many . foldr combine [] . unLots
+      where
+        combine :: a -> [SQL.MySQLValue] -> [SQL.MySQLValue]
+        combine a vals = case toField a of
+            SQL.One val -> val : vals
+            _           -> vals
