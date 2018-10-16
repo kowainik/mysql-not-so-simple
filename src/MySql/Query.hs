@@ -15,7 +15,8 @@ module MySql.Query
 import Control.Monad.Except (MonadError (throwError))
 import Database.MySQL.Base (MySQLConn, OK, Query)
 
-import MySql.Error (MySqlError (..))
+import MySql.Error (MySqlError)
+import MySql.Matcher (usingMatcher)
 import MySql.Row (FromRow (..), ToRow (..))
 
 import qualified Database.MySQL.Base as SQL
@@ -74,12 +75,12 @@ fromRows (_columnDefs, iStream) = go []
         -- There are no more rows to be read from the server
         Nothing -> pure acc  -- TODO: call reverse here? Otherwise returns in the reverse order
         -- There are still rows to be read from the server
-        Just values -> case fromRow values of
+        Just values -> case usingMatcher values fromRow of
             -- Parsing of current row succeeded. Recurse
-            Just parsedValue -> go (parsedValue : acc)
+            Right parsedValue -> go (parsedValue : acc)
             -- Parsing of the current row failed, error out
-            Nothing -> do
+            Left err -> do
                 -- You need to 'consume' the while inputstream if we want to discard results midway
                 -- to prevent errors
                 liftIO $ SQL.skipToEof iStream
-                throwError $ MySqlParseError (show values)
+                throwError err
