@@ -6,3 +6,34 @@
 [![Stackage Nightly](http://stackage.org/package/mysql-not-so-simple/badge/nightly)](http://stackage.org/nightly/package/mysql-not-so-simple)
 
 MySQL interface
+
+## For developers
+
+### How to run tests?
+
+Ensure, that you've installed `mysql`:
+
+```shell
+$ brew install mysql
+```
+
+Run `mysql` server:
+
+```shell
+$ mysql.server start
+```
+
+Create `test_db`:
+
+```shell
+$ mysql -u root
+mysql> CREATE DATABASE test_db;
+```
+
+Create password with name `password` for the `root` user:
+
+```shell
+mysql> ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password';
+```
+
+Now you're finally ready to run tests!

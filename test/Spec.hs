@@ -1,7 +1,10 @@
-import Database.MySQL.Base (ciDatabase, ciUser, connect, defaultConnectInfo)
+module Main (main) where
+
+import Database.MySQL.Base (ciDatabase, ciPassword, ciUser, connect, defaultConnectInfo)
 import Hedgehog (Group, checkParallel)
 import System.IO (hSetEncoding, utf8)
 
+import MySql (executeRaw_)
 import Test.Field (toField'fromField)
 import Test.Sql (insertSelect)
 
@@ -17,10 +20,15 @@ main = do
 
     conn <- connect defaultConnectInfo
         { ciUser = "root"
+        , ciPassword = "password"
         , ciDatabase = "test_db"
         }
+    varConn <- newMVar conn
+
+    schema <- readFile "sql/test.sql"
+    executeRaw_ conn (fromString schema)
 
     checkGroups
         [ toField'fromField
-        , insertSelect conn
+        , insertSelect varConn
         ]

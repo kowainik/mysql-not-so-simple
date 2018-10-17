@@ -10,6 +10,7 @@ module Test.Sql
        ( insertSelect
        ) where
 
+import Control.Concurrent.MVar (withMVar)
 import Data.Time.Clock (UTCTime)
 import Hedgehog (Gen, Group (..), Property, forAll, property, (===))
 
@@ -18,7 +19,7 @@ import MySql (FromRow (..), MySQLConn, MySqlError, Only (..), Query, ToField (..
 import Test.Gen (genDouble, genMaybe, genText, genUtcTime, named)
 
 
-insertSelect :: MySQLConn -> Group
+insertSelect :: MVar MySQLConn -> Group
 insertSelect conn = Group "INSERT/SELECT"
     [ insertSelectProperty conn genUser  `named` "User"
     , insertSelectProperty conn genGUser `named` "GenericUser"
@@ -26,39 +27,43 @@ insertSelect conn = Group "INSERT/SELECT"
 
 insertSelectProperty
     :: forall user . (FromRow user, ToRow user, Eq user, Show user)
-    => MySQLConn -> Gen user -> Property
-insertSelectProperty conn userG = property $ do
+    => MVar MySQLConn -> Gen user -> Property
+insertSelectProperty varConn userG = property $ do
     -- generate random user
     user <- forAll userG
 
-    -- insert user into DB and return id of this user
-    Right [Only (userId :: Int32)] <- liftIO $ do
+    Right [dbUser] <- liftIO $ withMVar varConn $ \conn -> do
+        -- insert user into DB and
         execute_ conn [sql|
             INSERT INTO users (name, birthday, weight, age)
             VALUES (?, ?, ?, ?)
         |] user
-        queryRawIO [sql| SELECT LAST_INSERT_ID() |]
 
-    -- query inserted user by returned id
-    Right [dbUser] <- liftIO $ queryIO [sql|
-        SELECT name, birthday, weight, age
-        WHERE id = ?
-    |] (Only userId)
+        -- return id of this user
+        Right [Only (userId :: Int32)] <- queryRawIO conn [sql| SELECT LAST_INSERT_ID() |]
+
+        -- query inserted user by returned id
+        queryIO conn [sql|
+            SELECT name, birthday, weight, age
+            WHERE id = ?
+        |] (Only userId)
 
     user === dbUser
   where
     queryRawIO
         :: forall res m . (MonadIO m, FromRow res)
-        => Query
+        => MySQLConn
+        -> Query
         -> m (Either MySqlError [res])
-    queryRawIO = runExceptT . queryRaw conn
+    queryRawIO conn = runExceptT . queryRaw conn
 
     queryIO
         :: forall m args . (MonadIO m, ToRow args)
-        => Query
+        => MySQLConn
+        -> Query
         -> args
         -> m (Either MySqlError [user])
-    queryIO q = runExceptT . query conn q
+    queryIO conn q = runExceptT . query conn q
 
 data User = User
     { userName     :: Text
