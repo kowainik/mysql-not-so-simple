@@ -54,12 +54,22 @@ library
                        ScopedTypeVariables
 
 
-test-suite mysql-not-so-simple-test
+test-suite mysql-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
+
   main-is:             Spec.hs
-  build-depends:       base
+  other-modules:       Prelude
+                       Test.Field
+
+  build-depends:       base-noprelude
+                     , hedgehog ^>= 0.6
+                     , hspec
+                     , hspec-core
+                     , mysql-haskell
                      , mysql-not-so-simple
+                     , relude
+                     , time
 
   ghc-options:         -Wall
                        -threaded
@@ -75,3 +85,6 @@ test-suite mysql-not-so-simple-test
                        -Wpartial-fields
 
   default-language:    Haskell2010
+  default-extensions:  LambdaCase
+                       OverloadedStrings
+                       ScopedTypeVariables

@@ -10,4 +10,4 @@ data MySqlError
     = MySqlWrongField SQL.MySQLValue Text
     | MySqlExpectedEndOfRow (NonEmpty SQL.MySQLValue)
     | MySqlUnexpectedEndOfRow
-    deriving (Show)
+    deriving (Show, Eq)
