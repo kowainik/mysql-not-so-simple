@@ -13,6 +13,7 @@ module MySql.Query
        ) where
 
 import Control.Monad.Except (MonadError (throwError))
+import Data.Sequence (Seq (..), (|>))
 import Database.MySQL.Base (MySQLConn, OK, Query)
 
 import MySql.Error (MySqlError)
@@ -68,16 +69,16 @@ fromRows
        (MonadIO m, FromRow a, MonadError MySqlError m)
     => ([SQL.ColumnDef], Stream.InputStream [SQL.MySQLValue])
     -> m [a]
-fromRows (_columnDefs, iStream) = go []
+fromRows (_columnDefs, iStream) = toList <$> go Empty
   where
-    go :: [a] -> m [a]
+    go :: Seq a -> m (Seq a)
     go acc = liftIO (Stream.read iStream) >>= \case
         -- There are no more rows to be read from the server
-        Nothing -> pure acc  -- TODO: call reverse here? Otherwise returns in the reverse order
+        Nothing -> pure acc
         -- There are still rows to be read from the server
         Just values -> case usingMatcher values fromRow of
             -- Parsing of current row succeeded. Recurse
-            Right parsedValue -> go (parsedValue : acc)
+            Right parsedValue -> go (acc |> parsedValue)
             -- Parsing of the current row failed, error out
             Left err -> do
                 -- You need to 'consume' the while inputstream if we want to discard results midway
