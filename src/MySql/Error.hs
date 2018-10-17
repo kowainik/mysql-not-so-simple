@@ -2,8 +2,9 @@ module MySql.Error
        ( MySqlError (..)
        ) where
 
-import Prelude hiding (show)
+import Prelude hiding (show, unlines)
 
+import Data.List (unlines)
 import Text.Show (show)
 
 import qualified Database.MySQL.Base as SQL
@@ -18,8 +19,13 @@ data MySqlError
 
 instance Show MySqlError where
     show = \case
-        (MySqlWrongField val expected) -> "MySQL error: Wrong field\n  Expected: "
-            ++ show expected ++ "\n  Actual: " ++ show val
-        (MySqlExpectedEndOfRow vals) -> "MySql error: Expected end of rows\n  Remaining fields: "
-            ++ show (toList vals)
+        MySqlWrongField val expected -> unlines
+            [ "MySQL error: Wrong field"
+            , "  Expected: " ++ show expected
+            , "  Actual: " ++ show val
+            ]
+        MySqlExpectedEndOfRow vals -> unlines
+            [ "MySql error: Expected end of rows"
+            , "  Remaining fields: " ++ show (toList vals)
+            ]
         MySqlUnexpectedEndOfRow -> "MySql error: Unexpected end of row"
