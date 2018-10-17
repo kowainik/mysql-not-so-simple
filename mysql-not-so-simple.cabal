@@ -61,6 +61,8 @@ test-suite mysql-test
   main-is:             Spec.hs
   other-modules:       Prelude
                        Test.Field
+                       Test.Gen
+                       Test.Sql
 
   build-depends:       base-noprelude
                      , hedgehog ^>= 0.6
