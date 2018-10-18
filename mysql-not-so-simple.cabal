@@ -72,6 +72,7 @@ test-suite mysql-test
                      , mysql-not-so-simple
                      , relude
                      , time
+                     , io-streams
 
   ghc-options:         -Wall
                        -threaded
