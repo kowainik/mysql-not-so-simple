@@ -72,7 +72,6 @@ test-suite mysql-test
                      , mysql-not-so-simple
                      , relude
                      , time
-                     , io-streams
 
   ghc-options:         -Wall
                        -threaded
@@ -90,4 +89,6 @@ test-suite mysql-test
   default-language:    Haskell2010
   default-extensions:  LambdaCase
                        OverloadedStrings
+                       RecordWildCards
                        ScopedTypeVariables
+                       TypeApplications
