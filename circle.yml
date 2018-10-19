@@ -9,13 +9,19 @@ jobs:
           MYSQL_DATABASE: test_db
     steps:
       - checkout
-      - restore_cache:
-          key: v2-cache
+      - restore-cache:
+          key: stack-work-{{ checksum "mysql-not-so-simple.cabal" }}
+      - restore-cache:
+          key: stack-global-{{ checksum "stack.yaml" }}
       - run: stack test --no-terminal --system-ghc
       - save_cache:
-          key: v2-cache
+          key: stack-global-{{ checksum "backend/stack.yaml" }}
           paths:
-            - ~/.stack
+            - "~/.stack"
+      - save_cache:
+          key: stack-work-{{ checksum "mysql-not-so-simple.cabal" }}
+          paths:
+            - ".stack-work"
 
 workflows:
   version: 2
