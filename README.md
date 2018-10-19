@@ -11,29 +11,8 @@ MySQL interface
 
 ### How to run tests?
 
-Ensure, that you've installed `mysql`:
+Run the following command before running tests:
 
 ```shell
-$ brew install mysql
+$ docker run --name test-mysql --rm -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=test_db -p 3306:3306 mysql:5.7.20
 ```
-
-Run `mysql` server:
-
-```shell
-$ mysql.server start
-```
-
-Create `test_db`:
-
-```shell
-$ mysql -u root
-mysql> CREATE DATABASE test_db;
-```
-
-Create password with name `password` for the `root` user:
-
-```shell
-mysql> ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password';
-```
-
-Now you're finally ready to run tests!
