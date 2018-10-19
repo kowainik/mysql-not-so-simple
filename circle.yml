@@ -1,0 +1,30 @@
+version: 2.0
+jobs:
+  build:
+    docker:
+      - image: fpco/stack-build:lts-12.10
+      - image: library/mysql:5.7.20
+        environment:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: test_db
+    steps:
+      - checkout
+      - restore-cache:
+          key: stack-work-{{ checksum "mysql-not-so-simple.cabal" }}
+      - restore-cache:
+          key: stack-global-{{ checksum "stack.yaml" }}
+      - run: stack test --no-terminal --system-ghc
+      - save_cache:
+          key: stack-global-{{ checksum "backend/stack.yaml" }}
+          paths:
+            - "~/.stack"
+      - save_cache:
+          key: stack-work-{{ checksum "mysql-not-so-simple.cabal" }}
+          paths:
+            - ".stack-work"
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build

@@ -4,6 +4,7 @@
 [![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Stackage Lts](http://stackage.org/package/mysql-not-so-simple/badge/lts)](http://stackage.org/lts/package/mysql-not-so-simple)
 [![Stackage Nightly](http://stackage.org/package/mysql-not-so-simple/badge/nightly)](http://stackage.org/nightly/package/mysql-not-so-simple)
+[![CircleCI](https://circleci.com/gh/Holmusk/mysql-not-so-simple.svg?style=svg&circle-token=f07890dcc36c8762572759e9152e64ae10d981e5)](https://circleci.com/gh/Holmusk/mysql-not-so-simple)
 
 MySQL interface
 
