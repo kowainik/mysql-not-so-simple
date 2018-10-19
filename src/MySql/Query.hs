@@ -1,8 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 
 module MySql.Query
-       ( SQL.OK (..)
-       , execute
+       ( execute
        , execute_
        , executeRaw
        , executeRaw_
@@ -10,6 +9,11 @@ module MySql.Query
        , executeMany_
        , query
        , queryRaw
+
+       -- * Reexports from @mysql-haskell library
+       , SQL.OK (..)
+       , MySQLConn
+       , Query
        ) where
 
 import Control.Monad.Except (MonadError (throwError))

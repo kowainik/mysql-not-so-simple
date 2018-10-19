@@ -6,3 +6,13 @@
 [![Stackage Nightly](http://stackage.org/package/mysql-not-so-simple/badge/nightly)](http://stackage.org/nightly/package/mysql-not-so-simple)
 
 MySQL interface
+
+## For developers
+
+### How to run tests?
+
+Run the following command before running tests:
+
+```shell
+$ docker run --name test-mysql --rm -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=test_db -p 3306:3306 mysql:5.7.20
+```

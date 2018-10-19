@@ -1,7 +1,8 @@
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users`
     ( `id`       INT(11) AUTO_INCREMENT PRIMARY KEY
-    , `name`     TEXT
+    , `name`     TEXT      NOT NULL
     , `birthday` TIMESTAMP NOT NULL
-    , `num`      INT(11)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    , `weight`   DOUBLE    NOT NULL
+    , `age`      INT(11)
+    ) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb4;
