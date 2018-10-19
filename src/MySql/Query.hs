@@ -21,7 +21,7 @@ import Data.Sequence (Seq (..), (|>))
 import Database.MySQL.Base (MySQLConn, OK, Query)
 
 import MySql.Error (MySqlError)
-import MySql.Matcher (usingMatcher)
+import MySql.Matcher (mkMatcherState, usingMatcher)
 import MySql.Row (FromRow (..), ToRow (..))
 
 import qualified Database.MySQL.Base as SQL
@@ -80,7 +80,7 @@ fromRows (_columnDefs, iStream) = toList <$> go Empty
         -- There are no more rows to be read from the server
         Nothing -> pure acc
         -- There are still rows to be read from the server
-        Just values -> case usingMatcher values fromRow of
+        Just values -> case usingMatcher (mkMatcherState values) fromRow of
             -- Parsing of current row succeeded. Recurse
             Right parsedValue -> go (acc |> parsedValue)
             -- Parsing of the current row failed, error out
