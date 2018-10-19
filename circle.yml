@@ -11,12 +11,11 @@ jobs:
       - checkout
       - restore_cache:
           key: v2-cache
-      - run: stack build --test --only-dependencies --no-terminal --system-ghc
+      - run: stack test --no-terminal --system-ghc
       - save_cache:
           key: v2-cache
           paths:
             - ~/.stack
-      - run: stack install --test --no-terminal --system-ghc
 
 workflows:
   version: 2
