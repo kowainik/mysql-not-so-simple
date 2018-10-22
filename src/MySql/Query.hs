@@ -13,12 +13,19 @@ module MySql.Query
        -- * Reexports from @mysql-haskell library
        , SQL.OK (..)
        , MySQLConn
+       , MySQLValue (..)
        , Query
+       , Param
+       , ConnectInfo (..)
+       , close
+       , connect
+       , defaultConnectInfoMB4
        ) where
 
 import Control.Monad.Except (MonadError (throwError))
 import Data.Sequence (Seq (..), (|>))
-import Database.MySQL.Base (MySQLConn, OK, Query)
+import Database.MySQL.Base (ConnectInfo (..), MySQLConn, MySQLValue (..), OK, Param, Query, close,
+                            connect, defaultConnectInfoMB4)
 
 import MySql.Error (MySqlError)
 import MySql.Matcher (mkMatcherState, usingMatcher)
