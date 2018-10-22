@@ -9,6 +9,7 @@ import System.IO (hSetEncoding, utf8)
 
 import MySql (executeRaw, sql)
 import Test.Field (toField'fromField)
+import Test.Row (toRow'fromRow)
 import Test.Sql (insertSelect)
 
 
@@ -53,5 +54,6 @@ main = do
 
     checkGroups
         [ toField'fromField
+        , toRow'fromRow
         , insertSelect varConn
         ]

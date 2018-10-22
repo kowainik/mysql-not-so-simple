@@ -62,6 +62,7 @@ test-suite mysql-test
   other-modules:       Prelude
                        Test.Field
                        Test.Gen
+                       Test.Row
                        Test.Sql
 
   build-depends:       base-noprelude

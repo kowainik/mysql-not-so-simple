@@ -3,3 +3,4 @@ module Prelude
        ) where
 
 import Relude
+import Relude.Extra.Enum as Relude
