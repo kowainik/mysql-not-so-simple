@@ -7,7 +7,7 @@ import Database.MySQL.Connection (utf8mb4_unicode_ci)
 import Hedgehog (Group, checkParallel)
 import System.IO (hSetEncoding, utf8)
 
-import MySql (executeRaw, sql)
+import MySql (executeFile)
 import Test.Field (toField'fromField)
 import Test.Row (toRow'fromRow)
 import Test.Sql (insertSelect)
@@ -35,23 +35,10 @@ main = do
     print greet
     putTextLn "===> Connection established..."
 
+    executeFile conn "sql/test.sql"
+    putTextLn "===> Schema created..."
+
     varConn <- newMVar conn
-
--- TODO: execute schema from the file
---    schema <- readFile "sql/test.sql"
---    putStrLn schema
-
-    print =<< executeRaw conn [sql| DROP TABLE IF EXISTS `users` |]
-    print =<< executeRaw conn [sql|
-        CREATE TABLE `users`
-            ( `id`       INT(11) AUTO_INCREMENT PRIMARY KEY
-            , `name`     TEXT      NOT NULL
-            , `birthday` TIMESTAMP NOT NULL
-            , `weight`   DOUBLE    NOT NULL
-            , `age`      INT(11)
-            ) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb4;
-    |]
-
     checkGroups
         [ toField'fromField
         , toRow'fromRow

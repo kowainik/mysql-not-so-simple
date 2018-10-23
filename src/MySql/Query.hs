@@ -7,6 +7,7 @@ module MySql.Query
        , executeRaw_
        , executeMany
        , executeMany_
+       , executeFile
        , query
        , queryRaw
 
@@ -32,6 +33,7 @@ import MySql.Matcher (mkMatcherState, usingMatcher)
 import MySql.Row (FromRow (..), ToRow (..))
 
 import qualified Database.MySQL.Base as SQL
+import qualified Database.MySQL.Connection as Conn
 import qualified System.IO.Streams as Stream
 
 -- | Execute given query and returning meta information about the result.
@@ -49,6 +51,13 @@ executeRaw conn = liftIO . SQL.execute_ conn
 -- | Like 'executeRaw' but ignores the result.
 executeRaw_ :: MonadIO m => MySQLConn -> Query -> m ()
 executeRaw_ conn = void . executeRaw conn
+
+-- | Execute all commands from the file.
+executeFile :: (MonadIO m) => MySQLConn -> FilePath -> m ()
+executeFile conn file = do
+    fileContent <- readFile file
+    executeRaw_ conn $ fromString fileContent
+    liftIO $ void $ Conn.waitCommandReply $ Conn.mysqlRead conn
 
 -- | Execute a multi-row query which don't return result-set.
 executeMany :: (MonadIO m, ToRow row) => MySQLConn -> Query -> [row] -> m [OK]
