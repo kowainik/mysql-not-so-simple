@@ -1,7 +1,3 @@
-{-# OPTIONS_GHC -fno-warn-orphans #-}
-
-{-# LANGUAGE StandaloneDeriving #-}
-
 -- | Property-based roundtrip tests for the 'FromField' and 'ToField' instances.
 
 module Test.Field
@@ -34,9 +30,3 @@ fieldProperty genField = property $ do
     extractField = \case
         SQL.One val -> fromField val
         SQL.Many _  -> Left MySqlUnexpectedEndOfRow  -- reusing existing error as dummy error
-
-----------------------------------------------------------------------------
--- Orphan instances
-----------------------------------------------------------------------------
-
-deriving instance Show SQL.Param
