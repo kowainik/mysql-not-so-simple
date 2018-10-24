@@ -8,6 +8,7 @@ module MySql.Query
        , executeMany
        , executeMany_
        , executeFile
+       , executeFiles
        , query
        , queryRaw
 
@@ -58,6 +59,12 @@ executeFile conn file = do
     fileContent <- readFile file
     executeRaw_ conn $ fromString fileContent
     liftIO $ void $ Conn.waitCommandReply $ Conn.mysqlRead conn
+
+-- | Execute all commands from the list of the given files.
+executeFiles :: MonadIO m => MySQLConn -> [FilePath] -> m ()
+executeFiles conn files = do
+    filesQ <- mconcat <$> forM files readFile
+    liftIO $ void $ SQL.executeMany_ conn $ fromString filesQ
 
 -- | Execute a multi-row query which don't return result-set.
 executeMany :: (MonadIO m, ToRow row) => MySQLConn -> Query -> [row] -> m [OK]
