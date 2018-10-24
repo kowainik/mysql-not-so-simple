@@ -7,6 +7,8 @@ import Prelude hiding (lines, show, unlines)
 import Data.List (lines, unlines)
 import Text.Show (show)
 
+import MySql.Named.Core (Name)
+
 import qualified Database.MySQL.Base as SQL
 
 
@@ -20,6 +22,8 @@ data MySqlError
     | MySqlExpectedEndOfRow (NonEmpty SQL.MySQLValue)
     -- | Less columns were returned by the SQL query than expected
     | MySqlUnexpectedEndOfRow
+    -- | Named param is not specified
+    | MySqlNamedError Name
     deriving (Eq)
 
 instance Show MySqlError where
@@ -37,3 +41,4 @@ instance Show MySqlError where
             , "  Remaining fields: " ++ show (toList vals)
             ]
         MySqlUnexpectedEndOfRow -> "MySql error: Unexpected end of row"
+        MySqlNamedError n -> "MySql error: Named param :" ++ show n ++ " is nor specified"

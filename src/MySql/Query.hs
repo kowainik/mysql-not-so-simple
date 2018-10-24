@@ -33,6 +33,7 @@ import Database.MySQL.Base (ConnectInfo (..), MySQLConn, MySQLValue (..), OK, Pa
 
 import MySql.Error (MySqlError)
 import MySql.Matcher (mkMatcherState, usingMatcher)
+import MySql.Named (NamedParam, extractNames)
 import MySql.Row (FromRow (..), ToRow (..))
 
 import qualified Database.MySQL.Base as SQL
@@ -89,6 +90,15 @@ query conn q args = liftIO (SQL.query conn q $ toRow args) >>= fromRows
 -- | Execute a MySQL query which return a result-set.
 queryRaw :: (MonadIO m, MonadError MySqlError m, FromRow res) => MySQLConn -> Query -> m [res]
 queryRaw conn q = liftIO (SQL.query_ conn q) >>= fromRows
+
+queryNamed
+    :: (MonadIO m, MonadError MySqlError m, ToRow args, FromRow res)
+    => MySQLConn -> Query -> [NamedParam] -> m [res]
+queryNamed conn qNamed namedArgs =
+    let (q, names) = extractNames qNamed
+        args = map
+
+    query conn q args
 
 ----------------------------------------------------------------------------
 -- Low-level internal details

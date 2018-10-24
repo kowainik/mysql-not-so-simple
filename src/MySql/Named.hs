@@ -1,4 +1,5 @@
-{-# LANGUAGE DerivingStrategies #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE RecordWildCards  #-}
 
 module MySql.Named
        ( NamedParam (..)
@@ -7,20 +8,28 @@ module MySql.Named
        , extractNames
        ) where
 
+import Control.Monad.Except (MonadError (throwError))
 import Data.Char (isAlphaNum)
 
-import qualified Data.ByteString.Lazy.Char8 as LBS8
-import qualified Database.MySQL.Base as SQL
+import MySql.Error (MySqlError (..))
+import MySql.Named.Core (Name (..))
 
-newtype Name = Name
-    { unName :: Text
-    } deriving newtype (Show, Eq, Ord)
+import qualified Data.ByteString.Lazy.Char8 as LBS8
+import qualified Data.List.NonEmpty as NonEmpty
+import qualified Database.MySQL.Base as SQL
 
 -- please, send help, how to name fields or data type???
 data NamedParam = NamedParam
     { namedParamName  :: Name
     , namedParamParam :: SQL.Param
     }
+
+-- | Checks whether the 'Name' is in the list and returns
+lookupName :: Name -> [NamedParam] -> Maybe SQL.Param
+lookupName n [] = Nothing
+lookupName n (NamedParam{..}:xs) = if namedParamName == n
+    then Just namedParamParam
+    else lookupName n xs
 
 {- | This function takes query with named parameters specified like this:
 
@@ -58,3 +67,8 @@ extractNames (SQL.Query query) = case go query of
 
     isNameChar :: Char -> Bool
     isNameChar c = isAlphaNum c || c == '_'
+
+namesToRow :: MonadError MySqlError m => NonEmpty Name -> [NamedParam] -> m row
+namesToRow names params =  NonEmpty.map magicLookup names
+  where
+    magicLookup n = whenNothing (lookupName n params) $ throwError $ MySqlNamedError n
