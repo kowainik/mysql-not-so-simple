@@ -7,6 +7,8 @@ module MySql.Query
        , executeRaw_
        , executeMany
        , executeMany_
+       , executeManyRaw
+       , executeManyRaw_
        , executeFile
        , executeFiles
        , query
@@ -34,7 +36,6 @@ import MySql.Matcher (mkMatcherState, usingMatcher)
 import MySql.Row (FromRow (..), ToRow (..))
 
 import qualified Database.MySQL.Base as SQL
-import qualified Database.MySQL.Connection as Conn
 import qualified System.IO.Streams as Stream
 
 -- | Execute given query and returning meta information about the result.
@@ -55,16 +56,13 @@ executeRaw_ conn = void . executeRaw conn
 
 -- | Execute all commands from the file.
 executeFile :: (MonadIO m) => MySQLConn -> FilePath -> m ()
-executeFile conn file = do
-    fileContent <- readFile file
-    executeRaw_ conn $ fromString fileContent
-    liftIO $ void $ Conn.waitCommandReply $ Conn.mysqlRead conn
+executeFile conn file = executeFiles conn [file]
 
 -- | Execute all commands from the list of the given files.
 executeFiles :: MonadIO m => MySQLConn -> [FilePath] -> m ()
 executeFiles conn files = do
     filesQ <- mconcat <$> forM files readFile
-    liftIO $ void $ SQL.executeMany_ conn $ fromString filesQ
+    executeManyRaw_ conn $ fromString filesQ
 
 -- | Execute a multi-row query which don't return result-set.
 executeMany :: (MonadIO m, ToRow row) => MySQLConn -> Query -> [row] -> m [OK]
@@ -73,6 +71,14 @@ executeMany conn q = liftIO . SQL.executeMany conn q . map toRow
 -- | Like 'executeMany' but ignores the result.
 executeMany_ :: (MonadIO m, ToRow row) => MySQLConn -> Query -> [row] -> m ()
 executeMany_ conn q = void . executeMany conn q
+
+-- | Like 'executeMany' but doesn't take row arguments.
+executeManyRaw :: (MonadIO m) => MySQLConn -> Query -> m [OK]
+executeManyRaw conn = liftIO . SQL.executeMany_ conn
+
+-- | Like 'executeManyRaw' but ignores the result.
+executeManyRaw_ :: MonadIO m => MySQLConn -> Query -> m ()
+executeManyRaw_ conn = void . executeManyRaw conn
 
 -- | Execute a MySQL query which return a result-set with parameters.
 query
