@@ -1,9 +1,13 @@
+{-# LANGUAGE ConstraintKinds #-}
+
 module MySql.Error
        ( MySqlError (..)
+       , WithError
        ) where
 
 import Prelude hiding (lines, show, unlines)
 
+import Control.Monad.Except (MonadError)
 import Data.List (lines, unlines)
 import Text.Show (show)
 
@@ -42,3 +46,6 @@ instance Show MySqlError where
             ]
         MySqlUnexpectedEndOfRow -> "MySql error: Unexpected end of row"
         MySqlNamedError n -> "MySql error: Named param :" ++ show n ++ " is nor specified"
+
+
+type WithError = MonadError MySqlError

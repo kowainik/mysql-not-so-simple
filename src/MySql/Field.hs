@@ -37,6 +37,9 @@ type Field a = (ToField a, FromField a)
 -- Define column for built in types.
 -- Refer to http://hackage.haskell.org/package/mysql-haskell-0.8.3.0/docs/Database-MySQL-Protocol-MySQLValue.html
 
+instance ToField SQL.Param where
+    toField = id
+
 instance ToField Text where
     toField = SQL.One . SQL.MySQLText
 

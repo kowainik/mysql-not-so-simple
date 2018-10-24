@@ -96,6 +96,12 @@ instance (ToField a) => ToRow (Only a) where
 instance (FromField a) => FromRow (Only a) where
     fromRow = Only <$> field
 
+instance ToField a => ToRow [a] where
+    toRow = map toField
+
+instance ToField a => ToRow (NonEmpty a) where
+    toRow = map toField . toList
+
 ----------------------------------------------------------------------------
 -- Generated instances
 ----------------------------------------------------------------------------

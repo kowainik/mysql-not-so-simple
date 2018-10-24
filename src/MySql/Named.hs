@@ -6,27 +6,23 @@ module MySql.Named
        , Name (..)
 
        , extractNames
+       , namesToRow
        ) where
 
 import Control.Monad.Except (MonadError (throwError))
 import Data.Char (isAlphaNum)
 
-import MySql.Error (MySqlError (..))
-import MySql.Named.Core (Name (..))
+import MySql.Error (MySqlError (..), WithError)
+import MySql.Named.Core (Name (..), NamedParam (..))
 
 import qualified Data.ByteString.Lazy.Char8 as LBS8
 import qualified Data.List.NonEmpty as NonEmpty
 import qualified Database.MySQL.Base as SQL
 
--- please, send help, how to name fields or data type???
-data NamedParam = NamedParam
-    { namedParamName  :: Name
-    , namedParamParam :: SQL.Param
-    }
 
 -- | Checks whether the 'Name' is in the list and returns
 lookupName :: Name -> [NamedParam] -> Maybe SQL.Param
-lookupName n [] = Nothing
+lookupName _ [] = Nothing
 lookupName n (NamedParam{..}:xs) = if namedParamName == n
     then Just namedParamParam
     else lookupName n xs
@@ -38,7 +34,9 @@ SELECT `name`, `user` FROM `users` WHERE `id` = :id
 @
 
 and returns either 'MySqlError' or query with all all names replaced by
-questiosn marks @?@ with list of the names in the order of their appearance. For example:
+questiosn marks @?@ with list of the names in the order of their appearance.
+
+For example:
 
 >>> extractNames "SELECT * FROM `users` WHERE foo = :foo AND bar = :bar AND baz = :foo"
 ("SELECT * FROM `users` WHERE foo = ? AND bar = ? AND baz = ?","foo" :| ["bar","foo"])
@@ -68,7 +66,14 @@ extractNames (SQL.Query query) = case go query of
     isNameChar :: Char -> Bool
     isNameChar c = isAlphaNum c || c == '_'
 
-namesToRow :: MonadError MySqlError m => NonEmpty Name -> [NamedParam] -> m row
-namesToRow names params =  NonEmpty.map magicLookup names
+
+-- | Returns the list of values to use in query by given list of 'Name's.
+namesToRow
+    :: forall m . WithError m
+    => NonEmpty Name  -- ^ List of the names used in query
+    -> [NamedParam]   -- ^ List of the named parameters
+    -> m (NonEmpty SQL.Param)
+namesToRow names params = sequence $ NonEmpty.map magicLookup names
   where
+    magicLookup :: Name -> m SQL.Param
     magicLookup n = whenNothing (lookupName n params) $ throwError $ MySqlNamedError n
