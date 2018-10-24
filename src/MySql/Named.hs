@@ -3,10 +3,13 @@
 module MySql.Named
        ( NamedParam (..)
        , Name (..)
+
+       , extractNames
        ) where
 
-import MySql.Error (MySqlError (..))
+import Data.Char (isAlphaNum)
 
+import qualified Data.ByteString.Lazy.Char8 as LBS8
 import qualified Database.MySQL.Base as SQL
 
 newtype Name = Name
@@ -34,4 +37,20 @@ Right ("SELECT * FROM `users` WHERE foo = ? AND bar = ? AND baz = ?", ["foo", "b
 extractNames
     :: SQL.Query
     -> (SQL.Query, NonEmpty Name)  -- TODO: should be either here
-extractNames = undefined
+extractNames (SQL.Query query) = case go query of
+    (_, [])         -> error "No names given"  -- TODO: later will be Either here
+    (q, name:names) -> (SQL.Query q, name :| names)
+  where
+    go :: LByteString -> (LByteString, [Name])
+    go str
+        | LBS8.null str = ("", [])
+        | otherwise     = case LBS8.break (== ':') str of
+            (before, after) -> case LBS8.uncons after of
+                Nothing -> (before, [])
+                Just (':', nameStart) ->
+                    let (name, remainingQuery) = LBS8.span isNameChar nameStart
+                    in bimap ((before <> "?") <>) (Name (decodeUtf8 name) : ) $ go remainingQuery
+                Just _ -> error "impossible happened"
+
+    isNameChar :: Char -> Bool
+    isNameChar c = isAlphaNum c || c == '_'
