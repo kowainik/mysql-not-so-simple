@@ -23,6 +23,7 @@ library
                          MySql.Field
                          MySql.Gen
                          MySql.Matcher
+                         MySql.Named
                          MySql.Row
                          MySql.Query
                          MySql.QQ
