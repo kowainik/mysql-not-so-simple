@@ -83,6 +83,20 @@ instance FromField Int32 where
     fromField (SQL.MySQLInt32 x) = Right x
     fromField x                  = Left $ MySqlWrongField x "Int32"
 
+instance ToField Word32 where
+    toField = SQL.One . SQL.MySQLInt32U
+
+instance FromField Word32 where
+    fromField (SQL.MySQLInt32U x) = Right x
+    fromField x                   = Left $ MySqlWrongField x "Word32"
+
+instance ToField Word64 where
+    toField = SQL.One . SQL.MySQLInt64U
+
+instance FromField Word64 where
+    fromField (SQL.MySQLInt64U x) = Right x
+    fromField x                   = Left $ MySqlWrongField x "Word64"
+
 instance ToField Double where
     toField = SQL.One . SQL.MySQLDouble
 
