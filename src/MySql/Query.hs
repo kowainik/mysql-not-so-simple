@@ -1,7 +1,8 @@
 {-# LANGUAGE FlexibleContexts #-}
 
 module MySql.Query
-       ( execute
+       ( -- * Queries
+         execute
        , execute_
        , executeNamed
        , executeNamed_
@@ -16,6 +17,9 @@ module MySql.Query
        , query
        , queryRaw
        , queryNamed
+
+       -- * Utils
+       , asLastId
 
        -- * Reexports from @mysql-haskell library
        , SQL.OK (..)
@@ -35,6 +39,7 @@ import Database.MySQL.Base (ConnectInfo (..), MySQLConn, MySQLValue (..), OK, Pa
                             connect, defaultConnectInfoMB4)
 
 import MySql.Error (WithError)
+import MySql.Field (LastId (..))
 import MySql.Matcher (mkMatcherState, usingMatcher)
 import MySql.Named (NamedParam, extractNames, namesToRow)
 import MySql.Row (FromRow (..), ToRow (..))
@@ -108,6 +113,10 @@ queryNamed
     => MySQLConn -> Query -> [NamedParam] -> m [res]
 queryNamed conn qNamed namedArgs =
     withNamedArgs qNamed namedArgs >>= uncurry (query conn)
+
+-- | Useful function to extract last inserted id from OK result.
+asLastId :: Functor f => f OK -> f LastId
+asLastId = fmap (LastId . SQL.okLastInsertID)
 
 ----------------------------------------------------------------------------
 -- Low-level internal details

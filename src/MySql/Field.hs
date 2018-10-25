@@ -1,4 +1,5 @@
 {-# LANGUAGE ConstraintKinds      #-}
+{-# LANGUAGE DerivingStrategies   #-}
 {-# LANGUAGE TypeApplications     #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 
@@ -13,6 +14,7 @@ module MySql.Field
        , FromField (..)
        , Field
 
+       , LastId (..)
        , Lots (..)
        ) where
 
@@ -105,6 +107,11 @@ instance ToField UTCTime where
 instance FromField UTCTime where
     fromField (SQL.MySQLTimeStamp localTime) = Right $ localTimeToUTC utc localTime
     fromField x                              = Left $ MySqlWrongField x "TimeStamp"
+
+-- | This data type is used in queries that return id of last inserted row.
+newtype LastId = LastId
+    { unLastId :: Int
+    } deriving newtype (Eq, Ord, ToField)
 
 {- | This data type is supposed to be used to substitue multiple arguments. Like this:
 

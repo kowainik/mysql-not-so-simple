@@ -13,8 +13,8 @@ import Control.Concurrent.MVar (withMVar)
 import Data.Time.Clock (UTCTime)
 import Hedgehog (Gen, Group (..), Property, forAll, property, (===))
 
-import MySql (FromRow (..), MySQLConn, MySqlError, NamedParam, OK (..), Query, ToField (..),
-              ToRow (..), execute, field, queryNamed, sql, (=:))
+import MySql (FromRow (..), MySQLConn, MySqlError, NamedParam, Query, ToField (..), ToRow (..),
+              asLastId, execute, field, queryNamed, sql, (=:))
 import Test.Gen (genDouble, genMaybe, genText, genUtcTime, named)
 
 
@@ -33,7 +33,7 @@ insertSelectProperty varConn userGenerator = property $ do
 
     dbUser <- liftIO $ withMVar varConn $ \conn -> do
         -- insert user into DB
-        OK{..} <- execute conn [sql|
+        lastId <- asLastId $ execute conn [sql|
             INSERT INTO users (name, birthday, weight, age)
             VALUES (?, ?, ?, ?)
         |] user
@@ -43,7 +43,7 @@ insertSelectProperty varConn userGenerator = property $ do
             SELECT name, birthday, weight, age
             FROM users
             WHERE id = :id
-        |] [ "id" =: fromIntegral @_ @Int32 okLastInsertID ]
+        |] [ "id" =: lastId ]
 
     Right [user] === dbUser
   where
