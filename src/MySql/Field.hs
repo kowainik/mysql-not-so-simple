@@ -69,6 +69,13 @@ instance FromField LByteString where
     fromField (SQL.MySQLBytes x) = Right $ toLazy x
     fromField x                  = Left $ MySqlWrongField x "LByteString"
 
+instance ToField Int where
+    toField = SQL.One . SQL.MySQLInt64 . fromIntegral @Int @Int64
+
+instance FromField Int where
+    fromField (SQL.MySQLInt64 x) = Right $ fromIntegral @Int64 @Int x
+    fromField x                  = Left $ MySqlWrongField x "Int"
+
 instance ToField Int32 where
     toField = SQL.One . SQL.MySQLInt32
 

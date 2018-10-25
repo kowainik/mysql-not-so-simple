@@ -3,6 +3,7 @@
 module Test.Gen
        ( named
 
+       , genInt
        , genInt32
        , genDouble
        , genText
@@ -23,6 +24,9 @@ import qualified Hedgehog.Range as Range
 
 named :: b -> a -> (a, b)
 named b a = (a, b)
+
+genInt :: Gen Int
+genInt = Gen.int Range.constantBounded
 
 genInt32 :: Gen Int32
 genInt32 = Gen.int32 Range.constantBounded
