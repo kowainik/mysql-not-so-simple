@@ -29,6 +29,7 @@ library
                          MySql.QQ
 
   build-depends:       base-noprelude >= 4.11 && < 4.12
+                     , bytestring ^>= 0.10.8
                      , containers >= 0.5 && < 0.7
                      , io-streams
                      , mtl ^>= 2.2
