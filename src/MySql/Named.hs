@@ -7,6 +7,7 @@ module MySql.Named
 
        , extractNames
        , namesToRow
+       , (=:)
        ) where
 
 import Control.Monad.Except (MonadError (throwError))
@@ -15,6 +16,7 @@ import Data.List (lookup)
 import Relude.Extra.Bifunctor (bimapF)
 
 import MySql.Error (MySqlError (..), WithError)
+import MySql.Field (ToField (..))
 import MySql.Named.Core (Name (..), NamedParam (..))
 
 import qualified Data.ByteString.Lazy.Char8 as LBS8
@@ -75,3 +77,21 @@ namesToRow names params = traverse magicLookup names
   where
     magicLookup :: Name -> m SQL.Param
     magicLookup n = whenNothing (lookupName n params) $ throwError $ MySqlNamedError n
+
+{- Operator to create 'NamedParam's.
+
+>>> "foo" =: (1 :: Int)
+NamedParam {namedParamName = "foo", namedParamParam = One (MySQLText "fooVar")}
+
+So it can be used in creating the list of the named paarguments:
+
+@
+queryNamed [sql|
+  SELECT * FROM `users` WHERE foo = :foo AND bar = :bar AND baz = :foo"
+|] [ "foo" =: "fooBar"
+   , "bar" =: "barVar"
+   ]
+@
+-}
+(=:) :: (ToField a) => Name -> a -> NamedParam
+n =: a = NamedParam n $ toField a

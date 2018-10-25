@@ -1,7 +1,3 @@
-{-# OPTIONS_GHC -fno-warn-orphans #-}
-
-{-# LANGUAGE StandaloneDeriving #-}
-
 -- | Common generators
 
 module Test.Gen
@@ -18,7 +14,6 @@ import Data.Time.Calendar (Day (..))
 import Data.Time.Clock (UTCTime (..))
 import Hedgehog (Gen)
 
-import qualified Database.MySQL.Base as SQL
 import qualified Hedgehog.Gen as Gen
 import qualified Hedgehog.Range as Range
 
@@ -44,9 +39,3 @@ genUtcTime = do
     day <- Gen.int (Range.linear 50000 60000)
     seconds <- Gen.int (Range.linear 0 86400)
     return $ UTCTime (ModifiedJulianDay $ fromIntegral day) (realToFrac seconds)
-
-----------------------------------------------------------------------------
--- Orphan instances
-----------------------------------------------------------------------------
-
-deriving instance Show SQL.Param
