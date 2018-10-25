@@ -6,6 +6,9 @@ module Test.Gen
        , genInt32
        , genDouble
        , genText
+       , genLText
+       , genByteString
+       , genLByteString
        , genMaybe
        , genUtcTime
        ) where
@@ -29,6 +32,15 @@ genDouble = Gen.double $ Range.linearFrac (-1e6) 1e6
 
 genText :: Gen Text
 genText = Gen.text (Range.constant 0 1000) Gen.alphaNum  -- TODO: somehow doesn't work with unicode :shrug:
+
+genLText :: Gen LText
+genLText = toLazy <$> genText
+
+genByteString :: Gen ByteString
+genByteString = Gen.bytes (Range.constant 0 1000)
+
+genLByteString :: Gen LByteString
+genLByteString = toLazy <$> genByteString
 
 genMaybe :: Gen (Maybe Int32)
 genMaybe = Gen.maybe genInt32

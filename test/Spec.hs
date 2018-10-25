@@ -1,5 +1,3 @@
-{-# LANGUAGE QuasiQuotes #-}
-
 module Main (main) where
 
 import Database.MySQL.Base (ConnectInfo (..), connectDetail)
