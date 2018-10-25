@@ -31,7 +31,7 @@ genDouble :: Gen Double
 genDouble = Gen.double $ Range.linearFrac (-1e6) 1e6
 
 genText :: Gen Text
-genText = Gen.text (Range.constant 0 1000) Gen.alphaNum  -- TODO: somehow doesn't work with unicode :shrug:
+genText = Gen.text (Range.constant 0 1000) Gen.unicode
 
 genLText :: Gen LText
 genLText = toLazy <$> genText
