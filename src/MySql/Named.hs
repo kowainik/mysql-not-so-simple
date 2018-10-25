@@ -12,6 +12,7 @@ module MySql.Named
 import Control.Monad.Except (MonadError (throwError))
 import Data.Char (isAlphaNum)
 import Data.List (lookup)
+import Relude.Extra.Bifunctor (bimapF)
 
 import MySql.Error (MySqlError (..), WithError)
 import MySql.Named.Core (Name (..), NamedParam (..))
@@ -40,25 +41,25 @@ For example:
 -}
 extractNames
     :: SQL.Query
-    -> (SQL.Query, NonEmpty Name)  -- TODO: should be either here
-extractNames (SQL.Query query) = case go query of
-    (_, [])         -> error "No names given"  -- TODO: later will be Either here
-    (q, name:names) -> (SQL.Query q, name :| names)
+    -> Either MySqlError (SQL.Query, NonEmpty Name)
+extractNames qr@(SQL.Query query) = go query >>= \case
+    (_, [])         -> Left $ MySqlNoNames qr
+    (q, name:names) -> Right (SQL.Query q, name :| names)
   where
-    go :: LByteString -> (LByteString, [Name])
+    go :: LByteString -> Either MySqlError (LByteString, [Name])
     go str
-        | LBS8.null str = ("", [])
+        | LBS8.null str = Right ("", [])
         | otherwise     = let (before, after) = LBS8.break (== ':') str in
             case LBS8.uncons after of
-                Nothing -> (before, [])
+                Nothing -> Right (before, [])
                 Just (':', nameStart) ->
                     let (name, remainingQuery) = LBS8.span isNameChar nameStart
                     in if LBS8.null name
-                           then error "empty name"  -- TODO: Either here later
-                           else bimap ((before <> "?") <>)
-                                      (Name (decodeUtf8 name) :)
-                                      (go remainingQuery)
-                Just _ -> error "impossible happened"
+                           then Left $ MySqlEmptyName qr
+                           else bimapF ((before <> "?") <>)
+                                       (Name (decodeUtf8 name) :)
+                                       (go remainingQuery)
+                Just _ -> error "'break (== ':')' doesn't return string started with colon"
 
     isNameChar :: Char -> Bool
     isNameChar c = isAlphaNum c || c == '_'
