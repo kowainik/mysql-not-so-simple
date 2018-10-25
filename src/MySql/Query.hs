@@ -29,7 +29,7 @@ module MySql.Query
        , defaultConnectInfoMB4
        ) where
 
-import Control.Monad.Except (MonadError (throwError))
+import Control.Monad.Except (MonadError (throwError), liftEither)
 import Data.Sequence (Seq (..), (|>))
 import Database.MySQL.Base (ConnectInfo (..), MySQLConn, MySQLValue (..), OK, Param, Query, close,
                             connect, defaultConnectInfoMB4)
@@ -139,6 +139,6 @@ fromRows (_columnDefs, iStream) = toList <$> go Empty
 
 withNamedArgs :: WithError m => Query -> [NamedParam] -> m (Query, NonEmpty Param)
 withNamedArgs qNamed namedArgs = do
-    let (q, names) = extractNames qNamed
+    (q, names) <- liftEither $ extractNames qNamed
     args <- namesToRow names namedArgs
     pure (q, args)

@@ -28,13 +28,17 @@ data MySqlError
     | MySqlUnexpectedEndOfRow
     -- | Named param is not specified
     | MySqlNamedError Name
+    -- | Query has no names inside but was called with named functions
+    | MySqlNoNames SQL.Query
+    -- | Query contains empty name
+    | MySqlEmptyName SQL.Query
     deriving (Eq)
 
 instance Show MySqlError where
     show = \case
         MySqlWrongField val expected -> unlines
             [ "MySQL error: Wrong field"
-            , "  Expected: " ++ show expected
+            , "  Expected: " ++ toString expected
             , "  Actual: " ++ show val
             ]
         MySqlWrongColumn pos err -> unlines $
@@ -46,6 +50,10 @@ instance Show MySqlError where
             ]
         MySqlUnexpectedEndOfRow -> "MySql error: Unexpected end of row"
         MySqlNamedError n -> "MySql error: Named param :" ++ show n ++ " is not specified"
+        MySqlNoNames (SQL.Query q) ->
+            "MySql error: Query has no names but was called with named functions: " ++ decodeUtf8 q
+        MySqlEmptyName (SQL.Query q) ->
+            "MySql error: Query contains empty name: " ++ decodeUtf8 q
 
 
 -- | Type alias for 'MySqlError'.
