@@ -14,7 +14,7 @@ import qualified Database.MySQL.Base as SQL
 
 newtype Name = Name
     { unName :: Text
-    } deriving newtype (Eq, Ord)
+    } deriving newtype (Show, Eq, Ord)
 
 -- please, send help, how to name fields or data type???
 data NamedParam = NamedParam
@@ -32,7 +32,7 @@ and returns either 'MySqlError' or query with all all names replaced by
 questiosn marks @?@ with list of the names in the order of their appearance. For example:
 
 >>> extractNames "SELECT * FROM `users` WHERE foo = :foo AND bar = :bar AND baz = :foo"
-Right ("SELECT * FROM `users` WHERE foo = ? AND bar = ? AND baz = ?", ["foo", "bar", "foo"])
+("SELECT * FROM `users` WHERE foo = ? AND bar = ? AND baz = ?","foo" :| ["bar","foo"])
 -}
 extractNames
     :: SQL.Query
@@ -44,12 +44,16 @@ extractNames (SQL.Query query) = case go query of
     go :: LByteString -> (LByteString, [Name])
     go str
         | LBS8.null str = ("", [])
-        | otherwise     = case LBS8.break (== ':') str of
-            (before, after) -> case LBS8.uncons after of
+        | otherwise     = let (before, after) = LBS8.break (== ':') str in
+            case LBS8.uncons after of
                 Nothing -> (before, [])
                 Just (':', nameStart) ->
                     let (name, remainingQuery) = LBS8.span isNameChar nameStart
-                    in bimap ((before <> "?") <>) (Name (decodeUtf8 name) : ) $ go remainingQuery
+                    in if LBS8.null name
+                           then error "empty name"  -- TODO: Either here later
+                           else bimap ((before <> "?") <>)
+                                      (Name (decodeUtf8 name) :)
+                                      (go remainingQuery)
                 Just _ -> error "impossible happened"
 
     isNameChar :: Char -> Bool
