@@ -8,7 +8,7 @@ import Hedgehog (Gen, Group (..), Property, forAll, property, tripping)
 
 import MySql (Field, FromField (..), MySqlError (..), ToField (..))
 import Test.Gen (genByteString, genDouble, genInt, genInt32, genLByteString, genLText, genMaybe,
-                 genText, genUtcTime, named)
+                 genText, genUtcTime, genWord32, genWord64, named)
 
 import qualified Database.MySQL.Base as SQL
 
@@ -17,6 +17,8 @@ toField'fromField :: Group
 toField'fromField = Group "ToField/FromField"
     [ fieldProperty genInt32       `named` "Int32"
     , fieldProperty genInt         `named` "Int"
+    , fieldProperty genWord32      `named` "Word32"
+    , fieldProperty genWord64      `named` "Word64"
     , fieldProperty genDouble      `named` "Double"
     , fieldProperty genText        `named` "Text"
     , fieldProperty genLText       `named` "LText"

@@ -5,6 +5,8 @@ module Test.Gen
 
        , genInt
        , genInt32
+       , genWord32
+       , genWord64
        , genDouble
        , genText
        , genLText
@@ -30,6 +32,12 @@ genInt = Gen.int Range.constantBounded
 
 genInt32 :: Gen Int32
 genInt32 = Gen.int32 Range.constantBounded
+
+genWord32 :: Gen Word32
+genWord32 = Gen.word32 Range.constantBounded
+
+genWord64 :: Gen Word64
+genWord64 = Gen.word64 Range.constantBounded
 
 genDouble :: Gen Double
 genDouble = Gen.double $ Range.linearFrac (-1e6) 1e6
