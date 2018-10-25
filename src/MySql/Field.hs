@@ -1,5 +1,6 @@
-{-# LANGUAGE ConstraintKinds  #-}
-{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE ConstraintKinds      #-}
+{-# LANGUAGE TypeApplications     #-}
+{-# LANGUAGE TypeSynonymInstances #-}
 
 {- | The field is something that can be represented as a column.
 
@@ -46,6 +47,27 @@ instance ToField Text where
 instance FromField Text where
     fromField (SQL.MySQLText x) = Right x
     fromField x                 = Left $ MySqlWrongField x "Text"
+
+instance ToField LText where
+    toField = toField . fromLazy
+
+instance FromField LText where
+    fromField (SQL.MySQLText x) = Right $ toLazy x
+    fromField x                 = Left $ MySqlWrongField x "LText"
+
+instance ToField ByteString where
+    toField = SQL.One . SQL.MySQLBytes
+
+instance FromField ByteString where
+    fromField (SQL.MySQLBytes x) = Right x
+    fromField x                  = Left $ MySqlWrongField x "ByteString"
+
+instance ToField LByteString where
+    toField = toField . fromLazy
+
+instance FromField LByteString where
+    fromField (SQL.MySQLBytes x) = Right $ toLazy x
+    fromField x                  = Left $ MySqlWrongField x "LByteString"
 
 instance ToField Int32 where
     toField = SQL.One . SQL.MySQLInt32
