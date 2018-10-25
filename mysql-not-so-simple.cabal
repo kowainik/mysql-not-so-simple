@@ -24,6 +24,7 @@ library
                          MySql.Gen
                          MySql.Matcher
                          MySql.Named
+                           MySql.Named.Core
                          MySql.Row
                          MySql.Query
                          MySql.QQ

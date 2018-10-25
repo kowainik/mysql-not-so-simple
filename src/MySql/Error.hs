@@ -1,11 +1,17 @@
+{-# LANGUAGE ConstraintKinds #-}
+
 module MySql.Error
        ( MySqlError (..)
+       , WithError
        ) where
 
 import Prelude hiding (lines, show, unlines)
 
+import Control.Monad.Except (MonadError)
 import Data.List (lines, unlines)
 import Text.Show (show)
+
+import MySql.Named.Core (Name)
 
 import qualified Database.MySQL.Base as SQL
 
@@ -20,6 +26,8 @@ data MySqlError
     | MySqlExpectedEndOfRow (NonEmpty SQL.MySQLValue)
     -- | Less columns were returned by the SQL query than expected
     | MySqlUnexpectedEndOfRow
+    -- | Named param is not specified
+    | MySqlNamedError Name
     deriving (Eq)
 
 instance Show MySqlError where
@@ -30,10 +38,15 @@ instance Show MySqlError where
             , "  Actual: " ++ show val
             ]
         MySqlWrongColumn pos err -> unlines $
-            [ "MySQL error: the following error at column " ++ show pos ]
-         ++ map ("  " ++) (lines $ show err)
+            ( "MySQL error: the following error at column " ++ show pos )
+          : map ("  " ++) (lines $ show err)
         MySqlExpectedEndOfRow vals -> unlines
             [ "MySql error: Expected end of rows"
             , "  Remaining fields: " ++ show (toList vals)
             ]
         MySqlUnexpectedEndOfRow -> "MySql error: Unexpected end of row"
+        MySqlNamedError n -> "MySql error: Named param :" ++ show n ++ " is not specified"
+
+
+-- | Type alias for 'MySqlError'.
+type WithError = MonadError MySqlError

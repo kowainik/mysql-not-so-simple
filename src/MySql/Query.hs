@@ -3,6 +3,8 @@
 module MySql.Query
        ( execute
        , execute_
+       , executeNamed
+       , executeNamed_
        , executeRaw
        , executeRaw_
        , executeMany
@@ -13,6 +15,7 @@ module MySql.Query
        , executeFiles
        , query
        , queryRaw
+       , queryNamed
 
        -- * Reexports from @mysql-haskell library
        , SQL.OK (..)
@@ -31,8 +34,9 @@ import Data.Sequence (Seq (..), (|>))
 import Database.MySQL.Base (ConnectInfo (..), MySQLConn, MySQLValue (..), OK, Param, Query, close,
                             connect, defaultConnectInfoMB4)
 
-import MySql.Error (MySqlError)
+import MySql.Error (WithError)
 import MySql.Matcher (mkMatcherState, usingMatcher)
+import MySql.Named (NamedParam, extractNames, namesToRow)
 import MySql.Row (FromRow (..), ToRow (..))
 
 import qualified Database.MySQL.Base as SQL
@@ -45,6 +49,15 @@ execute conn q = liftIO . SQL.execute conn q . toRow
 -- | Like 'execute' but ignores the result.
 execute_ :: (MonadIO m, ToRow row) => MySQLConn -> Query -> row -> m ()
 execute_ conn q = void . execute conn q
+
+-- | Execute a MySQL query which return a result-set with parameters.
+executeNamed :: (MonadIO m, WithError m) => MySQLConn -> Query -> [NamedParam] -> m OK
+executeNamed conn qNamed namedArgs =
+    withNamedArgs qNamed namedArgs >>= uncurry (execute conn)
+
+-- | Like 'executeNamed' but ignores the result.
+executeNamed_ :: (MonadIO m, WithError m) => MySQLConn -> Query -> [NamedParam] -> m ()
+executeNamed_ conn q = void . executeNamed conn q
 
 -- | Execute a MySQL query which don't return a result-set.
 executeRaw :: MonadIO m => MySQLConn -> Query -> m OK
@@ -82,13 +95,19 @@ executeManyRaw_ conn = void . executeManyRaw conn
 
 -- | Execute a MySQL query which return a result-set with parameters.
 query
-    :: (MonadIO m, MonadError MySqlError m, ToRow args, FromRow res)
+    :: (MonadIO m, WithError m, ToRow args, FromRow res)
     => MySQLConn -> Query -> args -> m [res]
 query conn q args = liftIO (SQL.query conn q $ toRow args) >>= fromRows
 
 -- | Execute a MySQL query which return a result-set.
-queryRaw :: (MonadIO m, MonadError MySqlError m, FromRow res) => MySQLConn -> Query -> m [res]
+queryRaw :: (MonadIO m, WithError m, FromRow res) => MySQLConn -> Query -> m [res]
 queryRaw conn q = liftIO (SQL.query_ conn q) >>= fromRows
+
+queryNamed
+    :: (MonadIO m, WithError m, FromRow res)
+    => MySQLConn -> Query -> [NamedParam] -> m [res]
+queryNamed conn qNamed namedArgs =
+    withNamedArgs qNamed namedArgs >>= uncurry (query conn)
 
 ----------------------------------------------------------------------------
 -- Low-level internal details
@@ -98,8 +117,7 @@ queryRaw conn q = liftIO (SQL.query_ conn q) >>= fromRows
 end or fail early if the parsing fails.
 -}
 fromRows
-    :: forall a m .
-       (MonadIO m, FromRow a, MonadError MySqlError m)
+    :: forall a m . (MonadIO m, FromRow a, WithError m)
     => ([SQL.ColumnDef], Stream.InputStream [SQL.MySQLValue])
     -> m [a]
 fromRows (_columnDefs, iStream) = toList <$> go Empty
@@ -118,3 +136,9 @@ fromRows (_columnDefs, iStream) = toList <$> go Empty
                 -- to prevent errors
                 liftIO $ SQL.skipToEof iStream
                 throwError err
+
+withNamedArgs :: WithError m => Query -> [NamedParam] -> m (Query, NonEmpty Param)
+withNamedArgs qNamed namedArgs = do
+    let (q, names) = extractNames qNamed
+    args <- namesToRow names namedArgs
+    pure (q, args)
