@@ -13,8 +13,8 @@ import Control.Concurrent.MVar (withMVar)
 import Data.Time.Clock (UTCTime)
 import Hedgehog (Gen, Group (..), Property, forAll, property, (===))
 
-import MySql (FromRow (..), MySQLConn, MySqlError, OK (..), Only (..), Query, ToField (..),
-              ToRow (..), execute, field, query, sql)
+import MySql (FromRow (..), MySQLConn, MySqlError, NamedParam, OK (..), Query, ToField (..),
+              ToRow (..), execute, field, queryNamed, sql, (=:))
 import Test.Gen (genDouble, genMaybe, genText, genUtcTime, named)
 
 
@@ -39,21 +39,21 @@ insertSelectProperty varConn userGenerator = property $ do
         |] user
 
         -- query inserted user by returned id
-        queryIO conn [sql|
+        queryNamedIO conn [sql|
             SELECT name, birthday, weight, age
             FROM users
-            WHERE id = ?
-        |] (Only $ fromIntegral @_ @Int32 okLastInsertID)
+            WHERE id = :id
+        |] [ "id" =: fromIntegral @_ @Int32 okLastInsertID ]
 
     Right [user] === dbUser
   where
-    queryIO
-        :: forall m args . (MonadIO m, ToRow args)
+    queryNamedIO
+        :: forall m . (MonadIO m)
         => MySQLConn
         -> Query
-        -> args
+        -> [NamedParam]
         -> m (Either MySqlError [user])
-    queryIO conn q = runExceptT . query conn q
+    queryNamedIO conn q = runExceptT . queryNamed conn q
 
 data User = User
     { userName     :: Text
