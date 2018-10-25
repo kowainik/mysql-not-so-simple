@@ -35,25 +35,25 @@ data MySqlError
     deriving (Eq)
 
 instance Show MySqlError where
-    show = \case
+    show e = "MySQL error: " ++ case e of
         MySqlWrongField val expected -> unlines
-            [ "MySQL error: Wrong field"
+            [ "Wrong field"
             , "  Expected: " ++ toString expected
             , "  Actual: " ++ show val
             ]
         MySqlWrongColumn pos err -> unlines $
-            ( "MySQL error: the following error at column " ++ show pos )
+            ( "The following error at column " ++ show pos )
           : map ("  " ++) (lines $ show err)
         MySqlExpectedEndOfRow vals -> unlines
-            [ "MySql error: Expected end of rows"
+            [ "Expected end of rows"
             , "  Remaining fields: " ++ show (toList vals)
             ]
-        MySqlUnexpectedEndOfRow -> "MySql error: Unexpected end of row"
-        MySqlNamedError n -> "MySql error: Named param :" ++ show n ++ " is not specified"
+        MySqlUnexpectedEndOfRow -> "Unexpected end of row"
+        MySqlNamedError n -> "Named param :" ++ show n ++ " is not specified"
         MySqlNoNames (SQL.Query q) ->
-            "MySql error: Query has no names but was called with named functions: " ++ decodeUtf8 q
+            "Query has no names but was called with named functions: " ++ decodeUtf8 q
         MySqlEmptyName (SQL.Query q) ->
-            "MySql error: Query contains empty name: " ++ decodeUtf8 q
+            "Query contains empty name: " ++ decodeUtf8 q
 
 
 -- | Type alias for 'MySqlError'.
