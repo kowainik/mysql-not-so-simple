@@ -11,21 +11,18 @@ module MySql.Named
 
 import Control.Monad.Except (MonadError (throwError))
 import Data.Char (isAlphaNum)
+import Data.List (lookup)
 
 import MySql.Error (MySqlError (..), WithError)
 import MySql.Named.Core (Name (..), NamedParam (..))
 
 import qualified Data.ByteString.Lazy.Char8 as LBS8
-import qualified Data.List.NonEmpty as NonEmpty
 import qualified Database.MySQL.Base as SQL
 
 
 -- | Checks whether the 'Name' is in the list and returns
 lookupName :: Name -> [NamedParam] -> Maybe SQL.Param
-lookupName _ [] = Nothing
-lookupName n (NamedParam{..}:xs) = if namedParamName == n
-    then Just namedParamParam
-    else lookupName n xs
+lookupName n = lookup n . map (\NamedParam{..} -> (namedParamName, namedParamParam))
 
 {- | This function takes query with named parameters specified like this:
 
@@ -73,7 +70,7 @@ namesToRow
     => NonEmpty Name  -- ^ List of the names used in query
     -> [NamedParam]   -- ^ List of the named parameters
     -> m (NonEmpty SQL.Param)
-namesToRow names params = sequence $ NonEmpty.map magicLookup names
+namesToRow names params = traverse magicLookup names
   where
     magicLookup :: Name -> m SQL.Param
     magicLookup n = whenNothing (lookupName n params) $ throwError $ MySqlNamedError n

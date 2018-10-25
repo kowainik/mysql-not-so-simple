@@ -52,10 +52,8 @@ execute_ conn q = void . execute conn q
 
 -- | Execute a MySQL query which return a result-set with parameters.
 executeNamed :: (MonadIO m, WithError m) => MySQLConn -> Query -> [NamedParam] -> m OK
-executeNamed conn qNamed namedArgs = do
-    let (q, names) = extractNames qNamed
-    args <- namesToRow names namedArgs
-    execute conn q args
+executeNamed conn qNamed namedArgs =
+    withNamedArgs qNamed namedArgs >>= uncurry (execute conn)
 
 -- | Like 'executeNamed' but ignores the result.
 executeNamed_ :: (MonadIO m, WithError m) => MySQLConn -> Query -> [NamedParam] -> m ()
@@ -108,10 +106,8 @@ queryRaw conn q = liftIO (SQL.query_ conn q) >>= fromRows
 queryNamed
     :: (MonadIO m, WithError m, FromRow res)
     => MySQLConn -> Query -> [NamedParam] -> m [res]
-queryNamed conn qNamed namedArgs = do
-    let (q, names) = extractNames qNamed
-    args <- namesToRow names namedArgs
-    query conn q args
+queryNamed conn qNamed namedArgs =
+    withNamedArgs qNamed namedArgs >>= uncurry (query conn)
 
 ----------------------------------------------------------------------------
 -- Low-level internal details
@@ -140,3 +136,9 @@ fromRows (_columnDefs, iStream) = toList <$> go Empty
                 -- to prevent errors
                 liftIO $ SQL.skipToEof iStream
                 throwError err
+
+withNamedArgs :: WithError m => Query -> [NamedParam] -> m (Query, NonEmpty Param)
+withNamedArgs qNamed namedArgs = do
+    let (q, names) = extractNames qNamed
+    args <- namesToRow names namedArgs
+    pure (q, args)

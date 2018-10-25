@@ -100,7 +100,7 @@ instance ToField a => ToRow [a] where
     toRow = map toField
 
 instance ToField a => ToRow (NonEmpty a) where
-    toRow = map toField . toList
+    toRow = toRow . toList
 
 ----------------------------------------------------------------------------
 -- Generated instances

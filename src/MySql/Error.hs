@@ -38,14 +38,15 @@ instance Show MySqlError where
             , "  Actual: " ++ show val
             ]
         MySqlWrongColumn pos err -> unlines $
-            [ "MySQL error: the following error at column " ++ show pos ]
-         ++ map ("  " ++) (lines $ show err)
+            ( "MySQL error: the following error at column " ++ show pos )
+          : map ("  " ++) (lines $ show err)
         MySqlExpectedEndOfRow vals -> unlines
             [ "MySql error: Expected end of rows"
             , "  Remaining fields: " ++ show (toList vals)
             ]
         MySqlUnexpectedEndOfRow -> "MySql error: Unexpected end of row"
-        MySqlNamedError n -> "MySql error: Named param :" ++ show n ++ " is nor specified"
+        MySqlNamedError n -> "MySql error: Named param :" ++ show n ++ " is not specified"
 
 
+-- | Type alias for 'MySqlError'.
 type WithError = MonadError MySqlError
