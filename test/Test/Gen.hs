@@ -12,6 +12,7 @@ module Test.Gen
        , genLText
        , genByteString
        , genLByteString
+       , genBool
        , genMaybe
        , genUtcTime
        ) where
@@ -53,6 +54,9 @@ genByteString = Gen.bytes (Range.constant 0 1000)
 
 genLByteString :: Gen LByteString
 genLByteString = toLazy <$> genByteString
+
+genBool :: Gen Bool
+genBool = Gen.bool
 
 genMaybe :: Gen (Maybe Int32)
 genMaybe = Gen.maybe genInt32

@@ -78,6 +78,14 @@ instance FromField Int where
     fromField (SQL.MySQLInt64 x) = Right $ fromIntegral @Int64 @Int x
     fromField x                  = Left $ MySqlWrongField x "Int"
 
+instance ToField Bool where
+    toField True  = SQL.One $ SQL.MySQLInt64 1
+    toField False = SQL.One $ SQL.MySQLInt64 0
+
+instance FromField Bool where
+    fromField (SQL.MySQLInt64 x) = Right $ if x == 0 then False else True
+    fromField x                  = Left $ MySqlWrongField x "Bool"
+
 instance ToField Int32 where
     toField = SQL.One . SQL.MySQLInt32
 
