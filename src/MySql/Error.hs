@@ -32,6 +32,8 @@ data MySqlError
     | MySqlNoNames SQL.Query
     -- | Query contains empty name
     | MySqlEmptyName SQL.Query
+    -- | Any other error
+    | MySqlSomeError Text
     deriving (Eq)
 
 instance Show MySqlError where
@@ -54,6 +56,7 @@ instance Show MySqlError where
             "Query has no names but was called with named functions: " ++ decodeUtf8 q
         MySqlEmptyName (SQL.Query q) ->
             "Query contains empty name: " ++ decodeUtf8 q
+        MySqlSomeError err -> toString err
 
 
 -- | Type alias for 'MySqlError'.
