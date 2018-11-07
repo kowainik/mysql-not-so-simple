@@ -35,7 +35,7 @@ library
                      , io-streams
                      , mtl ^>= 2.2
                      , mysql-haskell ^>= 0.8.4
-                     , relude ^>= 0.3.0
+                     , relude ^>= 0.4.0
                      , template-haskell ^>= 2.13
                      , text ^>= 1.2.3
                      , time ^>= 1.8
