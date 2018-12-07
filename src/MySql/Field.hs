@@ -43,6 +43,9 @@ type Field a = (ToField a, FromField a)
 instance ToField SQL.Param where
     toField = id
 
+instance FromField SQL.MySQLValue where
+    fromField = pure
+
 instance ToField Text where
     toField = SQL.One . SQL.MySQLText
 
@@ -133,7 +136,7 @@ instance FromField UTCTime where
 -- | This data type is used in queries that return id of last inserted row.
 newtype LastId = LastId
     { unLastId :: Int
-    } deriving newtype (Eq, Ord, ToField)
+    } deriving newtype (Eq, Ord, Show, ToField)
 
 {- | This data type is supposed to be used to substitue multiple arguments. Like this:
 
