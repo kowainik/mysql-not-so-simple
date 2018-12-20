@@ -31,6 +31,7 @@ module MySql.Query
        , close
        , connect
        , defaultConnectInfoMB4
+       , SQL.withTransaction
        ) where
 
 import Control.Monad.Except (MonadError (throwError), liftEither)
