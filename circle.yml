@@ -2,7 +2,7 @@ version: 2.0
 jobs:
   build:
     docker:
-      - image: fpco/stack-build:lts-12.10
+      - image: fpco/stack-build:lts-13.2
       - image: library/mysql:5.7.20
         environment:
           MYSQL_ROOT_PASSWORD: password
